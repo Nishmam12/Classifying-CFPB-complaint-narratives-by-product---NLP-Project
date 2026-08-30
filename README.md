@@ -18,10 +18,10 @@
 
 | Member Name | Student ID | Primary Role / Contribution |
 |:---|:---|:---|
-| **Member 1** | *ID 1* | BERT Base Fine-Tuning, Transformer Pipeline & Web Deployment |
-| **Member 2** | *ID 2* | Recurrent Models (Bi-LSTM, GRU, SimpleRNN) & Word2Vec Embeddings |
-| **Member 3** | *ID 3* | Classical ML Models (LR, NB, RF), TF-IDF & Imbalance Mitigations |
-| **Member 4** | *ID 4* | Soft-Voting Ensemble, ACL LaTeX Report & Error Analysis |
+| **Nabil Ishmam** | *24241245* | BERT Base Fine-Tuning, Transformer Pipeline & Web Deployment |
+| **Afnan Mojumder** | *23301519* | Recurrent Models (Bi-LSTM, GRU, SimpleRNN) & Word2Vec Embeddings |
+| **Shoumodip Paul** | *23201447* | Classical ML Models (LR, NB, RF), TF-IDF & Imbalance Mitigations |
+| **Quazi Unjurn Daniel** | *23201133* | Soft-Voting Ensemble, ACL LaTeX Report & Error Analysis |
 
 ---
 
