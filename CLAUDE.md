@@ -433,11 +433,18 @@ Build the notebook with `python inject.py` (dry-run to a scratch path first).
 
 ## Working conventions
 
-- **Versioning: decided — no git, no `_vN.ipynb` filename increments.**
-  User's call (2026-08-29): Claude Code edits the real file in place each
-  session, and that supersedes the old filename-increment convention from
-  the Claude.ai handoff. `PROJECT_LOG.md` is the record of what changed and
-  why — that's the substitute for git history here, not a replacement for
-  it. This also means the "clean GitHub repo" bonus criterion is off the
-  table for this project; don't suggest it. Do not `git init` this folder
-  unless the user explicitly asks again.
+- **Versioning: git, on GitHub — this reversed on 2026-08-30.** The earlier
+  "no git, no `_vN.ipynb` increments" decision (2026-08-29) is superseded: the
+  project is now a real repo pushed to
+  `Nishmam12/Classifying-CFPB-complaint-narratives-by-product---NLP-Project`,
+  with the web demo deployed from `web/`. The "clean GitHub repo" bonus
+  criterion is therefore back on the table, not off it. Still no `_vN.ipynb`
+  filename increments — edit the real notebook in place. `PROJECT_LOG.md`
+  remains the narrative record; git history is not a substitute for it.
+- **Teammate branches may carry unrelated history.**
+  `feat/cfpb-nlp-models-and-report` (Shoumodip Paul) is a single orphan commit
+  with no merge base against `main`, so it cannot be merged normally, and its
+  headline table disagrees with `_cache/test_results.json` on all seven neural
+  models while matching exactly on the three classical ones. Its Qwen arm was
+  salvaged into `pipeline/qwen_lora.py` and the report appendix; the table was
+  not. **Check `git merge-base` before merging any teammate branch here.**
