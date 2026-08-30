@@ -1,0 +1,420 @@
+﻿
+======================================================================
+[1/6] setup (representations on full train split)
+======================================================================
+[11:55:35] === Stage: setup ===
+[11:55:36]   cache hit  splits
+[11:55:45]   train budget 200,000 | val 303,213 | test 303,213
+[11:55:46]   building   tfidf ...
+[12:02:04]   built      tfidf (200000, 25000) in 378.5s
+[12:02:04]   building   word2vec + sequences (fit on full training split) ...
+[12:06:53]     word2vec vocab: 47,051 (from 1,414,994 docs)
+[12:07:16]     embedding coverage: 29,998/30,000
+[12:07:18]   built      sequences in 313.8s
+[12:07:18] Setup complete.
+[12:07:18]   classes: [np.str_('Bank account or service'), np.str_('Credit card / prepaid card'), np.str_('Credit reporting'), np.str_('Debt collection'), np.str_('Money transfer / virtual currency'), np.str_('Mortgage'), np.str_('Payday / title / personal loan'), np.str_('Student loan'), np.str_('Vehicle / consumer loan')]
+[12:07:18]   tfidf train: (200000, 25000)  test: (303213, 25000)
+[12:07:18]   seq train: (200000, 256)  test: (303213, 256)
+--- setup (representations on full train split) done in 705s
+
+======================================================================
+[2/6] classical tuning (9 runs)
+======================================================================
+[12:07:40] === Stage: setup ===
+[12:07:40]   cache hit  splits
+[12:07:42]   train budget 200,000 | val 303,213 | test 303,213
+[12:07:42]   cache hit  tfidf
+[12:07:44] === Classical ML tuning (9 runs) ===
+[12:08:04]   [Logistic Regression / LR-C0.1] macro_f1=0.7220 acc=0.8229 (19.5s)
+[12:08:42]   [Logistic Regression / LR-C1.0] macro_f1=0.7346 acc=0.8375 (37.6s)
+[12:09:57]   [Logistic Regression / LR-C5.0] macro_f1=0.7323 acc=0.8409 (75.7s)
+[12:09:58]   [Naive Bayes / NB-a0.01] macro_f1=0.7195 acc=0.8313 (0.4s)
+[12:09:58]   [Naive Bayes / NB-a0.1] macro_f1=0.7155 acc=0.8297 (0.3s)
+[12:09:58]   [Naive Bayes / NB-a1.0] macro_f1=0.6362 acc=0.8190 (0.3s)
+[12:10:04]   [Random Forest / RF-n50-d20] macro_f1=0.6520 acc=0.7806 (6.0s)
+[12:10:16]   [Random Forest / RF-n50-d30] macro_f1=0.6701 acc=0.7952 (12.2s)
+[12:10:49]   [Random Forest / RF-n50-d50] macro_f1=0.6899 acc=0.8112 (32.8s)
+[12:10:49] stage_classical: wrote 9 runs
+--- classical tuning (9 runs) done in 228s
+
+======================================================================
+[3/6] recurrent tuning (18 runs)
+======================================================================
+[12:11:19] === Stage: setup ===
+[12:11:20]   cache hit  splits
+[12:11:22]   train budget 200,000 | val 303,213 | test 303,213
+[12:11:22]   cache hit  sequences
+[12:11:23] === Recurrent tuning (18 runs) ===
+[12:11:49]     SimpleRNN/C1 epoch 1/4 loss=1.7278 macro_f1=0.3715 acc=0.5742
+[12:12:14]     SimpleRNN/C1 epoch 2/4 loss=1.3941 macro_f1=0.4353 acc=0.5785
+[12:12:40]     SimpleRNN/C1 epoch 3/4 loss=1.2586 macro_f1=0.5093 acc=0.6659
+[12:13:07]     SimpleRNN/C1 epoch 4/4 loss=1.1803 macro_f1=0.5412 acc=0.7189
+[12:13:07]   [SimpleRNN / Config-1] macro_f1=0.5412 acc=0.7189 (104.0s)
+[12:13:31]     SimpleRNN/C2 epoch 1/4 loss=1.5055 macro_f1=0.4634 acc=0.6022
+[12:13:56]     SimpleRNN/C2 epoch 2/4 loss=1.1989 macro_f1=0.5352 acc=0.6809
+[12:14:21]     SimpleRNN/C2 epoch 3/4 loss=1.1085 macro_f1=0.5606 acc=0.7373
+[12:14:47]     SimpleRNN/C2 epoch 4/4 loss=1.0765 macro_f1=0.5922 acc=0.7250
+[12:14:47]   [SimpleRNN / Config-2] macro_f1=0.5922 acc=0.7250 (100.3s)
+[12:15:12]     SimpleRNN/C3 epoch 1/4 loss=1.6538 macro_f1=0.4380 acc=0.6026
+[12:15:38]     SimpleRNN/C3 epoch 2/4 loss=1.2779 macro_f1=0.5092 acc=0.6329
+[12:16:04]     SimpleRNN/C3 epoch 3/4 loss=1.1188 macro_f1=0.5850 acc=0.7479
+[12:16:28]     SimpleRNN/C3 epoch 4/4 loss=1.0374 macro_f1=0.6121 acc=0.7516
+[12:16:28]   [SimpleRNN / Config-3] macro_f1=0.6121 acc=0.7516 (101.5s)
+[12:16:52]     GRU/C1 epoch 1/4 loss=1.3250 macro_f1=0.6673 acc=0.7694
+[12:17:15]     GRU/C1 epoch 2/4 loss=0.7059 macro_f1=0.6891 acc=0.7908
+[12:17:37]     GRU/C1 epoch 3/4 loss=0.6252 macro_f1=0.7099 acc=0.8093
+[12:18:02]     GRU/C1 epoch 4/4 loss=0.5793 macro_f1=0.7078 acc=0.8101
+[12:18:02]   [GRU / Config-1] macro_f1=0.7099 acc=0.8093 (93.9s)
+[12:18:25]     GRU/C2 epoch 1/4 loss=1.0322 macro_f1=0.6901 acc=0.8011
+[12:18:48]     GRU/C2 epoch 2/4 loss=0.6269 macro_f1=0.7077 acc=0.8111
+[12:19:09]     GRU/C2 epoch 3/4 loss=0.5604 macro_f1=0.7153 acc=0.8237
+[12:19:30]     GRU/C2 epoch 4/4 loss=0.5174 macro_f1=0.7135 acc=0.8151
+[12:19:30]   [GRU / Config-2] macro_f1=0.7153 acc=0.8237 (88.3s)
+[12:19:51]     GRU/C3 epoch 1/4 loss=1.3187 macro_f1=0.6279 acc=0.7448
+[12:20:12]     GRU/C3 epoch 2/4 loss=0.7381 macro_f1=0.6868 acc=0.7950
+[12:20:30]     GRU/C3 epoch 3/4 loss=0.6427 macro_f1=0.7026 acc=0.8091
+[12:20:47]     GRU/C3 epoch 4/4 loss=0.5906 macro_f1=0.7093 acc=0.8155
+[12:20:47]   [GRU / Config-3] macro_f1=0.7093 acc=0.8155 (76.6s)
+[12:21:05]     LSTM/C1 epoch 1/4 loss=1.3030 macro_f1=0.6348 acc=0.7629
+[12:21:23]     LSTM/C1 epoch 2/4 loss=0.8074 macro_f1=0.6827 acc=0.7932
+[12:21:41]     LSTM/C1 epoch 3/4 loss=0.7178 macro_f1=0.6928 acc=0.8019
+[12:22:00]     LSTM/C1 epoch 4/4 loss=0.6605 macro_f1=0.7057 acc=0.8111
+[12:22:00]   [LSTM / Config-1] macro_f1=0.7057 acc=0.8111 (72.6s)
+[12:22:17]     LSTM/C2 epoch 1/4 loss=1.1070 macro_f1=0.6476 acc=0.7688
+[12:22:35]     LSTM/C2 epoch 2/4 loss=0.7248 macro_f1=0.6892 acc=0.7990
+[12:22:57]     LSTM/C2 epoch 3/4 loss=0.6478 macro_f1=0.7030 acc=0.8140
+[12:23:18]     LSTM/C2 epoch 4/4 loss=0.5906 macro_f1=0.7098 acc=0.8154
+[12:23:18]   [LSTM / Config-2] macro_f1=0.7098 acc=0.8154 (78.2s)
+[12:23:38]     LSTM/C3 epoch 1/4 loss=1.2854 macro_f1=0.6442 acc=0.7734
+[12:23:59]     LSTM/C3 epoch 2/4 loss=0.8085 macro_f1=0.6662 acc=0.7825
+[12:24:19]     LSTM/C3 epoch 3/4 loss=0.7172 macro_f1=0.6932 acc=0.7969
+[12:24:39]     LSTM/C3 epoch 4/4 loss=0.6642 macro_f1=0.6955 acc=0.8072
+[12:24:39]   [LSTM / Config-3] macro_f1=0.6955 acc=0.8072 (81.1s)
+[12:25:13]     Bidirectional SimpleRNN/C1 epoch 1/4 loss=1.2517 macro_f1=0.6119 acc=0.7415
+[12:25:47]     Bidirectional SimpleRNN/C1 epoch 2/4 loss=0.8895 macro_f1=0.6254 acc=0.7426
+[12:26:23]     Bidirectional SimpleRNN/C1 epoch 3/4 loss=0.8177 macro_f1=0.6369 acc=0.7680
+[12:26:56]     Bidirectional SimpleRNN/C1 epoch 4/4 loss=0.7724 macro_f1=0.6609 acc=0.7853
+[12:26:56]   [Bidirectional SimpleRNN / Config-1] macro_f1=0.6609 acc=0.7853 (137.5s)
+[12:27:25]     Bidirectional SimpleRNN/C2 epoch 1/4 loss=1.0624 macro_f1=0.6296 acc=0.7551
+[12:27:58]     Bidirectional SimpleRNN/C2 epoch 2/4 loss=0.8151 macro_f1=0.6428 acc=0.7901
+[12:28:31]     Bidirectional SimpleRNN/C2 epoch 3/4 loss=0.7600 macro_f1=0.6582 acc=0.7802
+[12:29:04]     Bidirectional SimpleRNN/C2 epoch 4/4 loss=0.7259 macro_f1=0.6748 acc=0.7975
+[12:29:04]   [Bidirectional SimpleRNN / Config-2] macro_f1=0.6748 acc=0.7975 (127.3s)
+[12:29:38]     Bidirectional SimpleRNN/C3 epoch 1/4 loss=1.1736 macro_f1=0.6283 acc=0.7510
+[12:30:13]     Bidirectional SimpleRNN/C3 epoch 2/4 loss=0.8252 macro_f1=0.6398 acc=0.7575
+[12:30:47]     Bidirectional SimpleRNN/C3 epoch 3/4 loss=0.7742 macro_f1=0.6402 acc=0.7687
+[12:31:22]     Bidirectional SimpleRNN/C3 epoch 4/4 loss=0.7345 macro_f1=0.6644 acc=0.7810
+[12:31:22]   [Bidirectional SimpleRNN / Config-3] macro_f1=0.6644 acc=0.7810 (138.1s)
+[12:32:00]     Bidirectional GRU/C1 epoch 1/4 loss=0.9777 macro_f1=0.6947 acc=0.8053
+[12:32:39]     Bidirectional GRU/C1 epoch 2/4 loss=0.6406 macro_f1=0.6931 acc=0.8050
+[12:33:15]     Bidirectional GRU/C1 epoch 3/4 loss=0.5703 macro_f1=0.7038 acc=0.8116
+[12:33:51]     Bidirectional GRU/C1 epoch 4/4 loss=0.5290 macro_f1=0.7161 acc=0.8239
+[12:33:51]   [Bidirectional GRU / Config-1] macro_f1=0.7161 acc=0.8239 (149.4s)
+[12:34:28]     Bidirectional GRU/C2 epoch 1/4 loss=0.8321 macro_f1=0.6946 acc=0.8007
+[12:35:00]     Bidirectional GRU/C2 epoch 2/4 loss=0.5836 macro_f1=0.7050 acc=0.8080
+[12:35:36]     Bidirectional GRU/C2 epoch 3/4 loss=0.5196 macro_f1=0.7190 acc=0.8252
+[12:36:13]     Bidirectional GRU/C2 epoch 4/4 loss=0.4699 macro_f1=0.7201 acc=0.8200
+[12:36:13]   [Bidirectional GRU / Config-2] macro_f1=0.7201 acc=0.8200 (141.8s)
+[12:36:47]     Bidirectional GRU/C3 epoch 1/4 loss=0.9731 macro_f1=0.6780 acc=0.7901
+[12:37:20]     Bidirectional GRU/C3 epoch 2/4 loss=0.6353 macro_f1=0.7033 acc=0.8057
+[12:37:53]     Bidirectional GRU/C3 epoch 3/4 loss=0.5754 macro_f1=0.7007 acc=0.8066
+[12:38:30]     Bidirectional GRU/C3 epoch 4/4 loss=0.5348 macro_f1=0.7049 acc=0.8066
+[12:38:30]   [Bidirectional GRU / Config-3] macro_f1=0.7049 acc=0.8066 (136.5s)
+[12:39:07]     Bidirectional LSTM/C1 epoch 1/4 loss=0.9867 macro_f1=0.6846 acc=0.7989
+[12:39:45]     Bidirectional LSTM/C1 epoch 2/4 loss=0.6549 macro_f1=0.6930 acc=0.8043
+[12:40:22]     Bidirectional LSTM/C1 epoch 3/4 loss=0.5899 macro_f1=0.7113 acc=0.8175
+[12:40:57]     Bidirectional LSTM/C1 epoch 4/4 loss=0.5422 macro_f1=0.7178 acc=0.8255
+[12:40:57]   [Bidirectional LSTM / Config-1] macro_f1=0.7178 acc=0.8255 (147.7s)
+[12:41:32]     Bidirectional LSTM/C2 epoch 1/4 loss=0.8540 macro_f1=0.6956 acc=0.8023
+[12:42:07]     Bidirectional LSTM/C2 epoch 2/4 loss=0.6071 macro_f1=0.7068 acc=0.8091
+[12:42:42]     Bidirectional LSTM/C2 epoch 3/4 loss=0.5448 macro_f1=0.7136 acc=0.8216
+[12:43:14]     Bidirectional LSTM/C2 epoch 4/4 loss=0.4897 macro_f1=0.7123 acc=0.8197
+[12:43:14]   [Bidirectional LSTM / Config-2] macro_f1=0.7136 acc=0.8216 (136.3s)
+[12:43:43]     Bidirectional LSTM/C3 epoch 1/4 loss=0.9811 macro_f1=0.6749 acc=0.7937
+[12:44:15]     Bidirectional LSTM/C3 epoch 2/4 loss=0.6619 macro_f1=0.7000 acc=0.8138
+[12:44:44]     Bidirectional LSTM/C3 epoch 3/4 loss=0.6001 macro_f1=0.7082 acc=0.8174
+[12:45:15]     Bidirectional LSTM/C3 epoch 4/4 loss=0.5543 macro_f1=0.7104 acc=0.8158
+[12:45:15]   [Bidirectional LSTM / Config-3] macro_f1=0.7104 acc=0.8158 (121.1s)
+[12:45:15] stage_recurrent: wrote 18 runs
+--- recurrent tuning (18 runs) done in 2063s
+
+======================================================================
+[4/6] BERT tuning (3 runs)
+======================================================================
+[12:45:46] === Stage: setup ===
+[12:45:46]   cache hit  splits
+[12:45:47]   train budget 200,000 | val 303,213 | test 303,213
+[12:45:49]   tokenizing train (200,000 docs) ...
+[12:46:31]   tokenized train in 41.8s
+[12:46:31]   tokenizing val (303,213 docs) ...
+[12:47:35]   tokenized val in 63.6s
+[12:47:35] === BERT tuning (3 runs) ===
+python : W0830 12:47:39.443000 34968 torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are 
+currently not supported in Windows or MacOs.
+At line:1 char:358
++ ... ab Project\pipeline"; python -u run_all.py *> "..\_cache\run_all.log"
++                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (W0830 12:47:39....ndows or MacOs.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2702.83it/s]
+[1mBertForSequenceClassification LOAD REPORT[0m from: bert-base-uncased
+Key                                        | Status     | 
+-------------------------------------------+------------+-
+cls.seq_relationship.bias                  | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | 
+cls.predictions.transform.dense.weight     | UNEXPECTED | 
+cls.predictions.bias                       | UNEXPECTED | 
+cls.predictions.transform.dense.bias       | UNEXPECTED | 
+cls.seq_relationship.weight                | UNEXPECTED | 
+classifier.bias                            | MISSING    | 
+classifier.weight                          | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your 
+downstream task.
+[12:59:16]     BERT/C1 epoch 1/2 loss=0.6900
+[13:11:05]     BERT/C1 epoch 2/2 loss=0.5001
+[13:15:33]   [BERT Base / BERT-Config-1] macro_f1=0.7647 acc=0.8558 (1678.1s)
+
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]
+Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.18it/s]
+Writing model shards: 100%|██████████| 1/1 [00:00<00:00,  2.18it/s]
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 199/199 [00:00<00:00, 6118.54it/s]
+[1mBertForSequenceClassification LOAD REPORT[0m from: bert-base-uncased
+Key                                        | Status     | 
+-------------------------------------------+------------+-
+cls.seq_relationship.bias                  | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | 
+cls.predictions.transform.dense.weight     | UNEXPECTED | 
+cls.predictions.bias                       | UNEXPECTED | 
+cls.predictions.transform.dense.bias       | UNEXPECTED | 
+cls.seq_relationship.weight                | UNEXPECTED | 
+classifier.bias                            | MISSING    | 
+classifier.weight                          | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your 
+downstream task.
+[13:27:12]     BERT/C2 epoch 1/2 loss=0.6934
+
+======================================================================
+[1/6] setup (representations on full train split)
+======================================================================
+[16:51:24] === Stage: setup ===
+[16:51:34]   cache hit  splits
+[16:51:43]   train budget 200,000 | val 303,213 | test 303,213
+[16:51:43]   cache hit  tfidf
+[16:51:47]   cache hit  sequences
+[16:51:49] Setup complete.
+[16:51:49]   classes: [np.str_('Bank account or service'), np.str_('Credit card / prepaid card'), np.str_('Credit reporting'), np.str_('Debt collection'), np.str_('Money transfer / virtual currency'), np.str_('Mortgage'), np.str_('Payday / title / personal loan'), np.str_('Student loan'), np.str_('Vehicle / consumer loan')]
+[16:51:49]   tfidf train: (200000, 25000)  test: (303213, 25000)
+[16:51:49]   seq train: (200000, 256)  test: (303213, 256)
+--- setup (representations on full train split) done in 34s
+
+======================================================================
+[2/6] classical tuning (9 runs)
+======================================================================
+[16:52:17] stage_classical: cache hit
+--- classical tuning (9 runs) done in 36s
+
+======================================================================
+[3/6] recurrent tuning (18 runs)
+======================================================================
+[16:52:36] stage_recurrent: cache hit
+--- recurrent tuning (18 runs) done in 17s
+
+======================================================================
+[4/6] BERT tuning (3 runs)
+======================================================================
+[16:53:25] === Stage: setup ===
+[16:53:25]   cache hit  splits
+[16:53:27]   train budget 200,000 | val 303,213 | test 303,213
+[16:53:31] === BERT tuning: resuming, 1 config(s) already done: BERT-Config-1 ===
+[16:53:31]   skipping BERT-Config-1 (already tuned)
+python : W0830 16:53:35.767000 6504 torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are 
+currently not supported in Windows or MacOs.
+At line:1 char:358
++ ... b Project\pipeline"; python -u run_all.py *>> "..\_cache\run_all.log"
++                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (W0830 16:53:35....ndows or MacOs.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3131.99it/s]
+[1mBertForSequenceClassification LOAD REPORT[0m from: bert-base-uncased
+Key                                        | Status     | 
+-------------------------------------------+------------+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED | 
+cls.predictions.bias                       | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | 
+cls.predictions.transform.dense.bias       | UNEXPECTED | 
+cls.predictions.transform.dense.weight     | UNEXPECTED | 
+cls.seq_relationship.bias                  | UNEXPECTED | 
+cls.seq_relationship.weight                | UNEXPECTED | 
+classifier.bias                            | MISSING    | 
+classifier.weight                          | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your 
+downstream task.
+[17:05:37]     BERT/C2 epoch 1/2 loss=0.6947
+[17:17:27]     BERT/C2 epoch 2/2 loss=0.5138
+[17:22:04]   [BERT Base / BERT-Config-2] macro_f1=0.7480 acc=0.8444 (1712.8s)
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 199/199 [00:00<00:00, 5638.72it/s]
+[1mBertForSequenceClassification LOAD REPORT[0m from: bert-base-uncased
+Key                                        | Status     | 
+-------------------------------------------+------------+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED | 
+cls.predictions.bias                       | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | 
+cls.predictions.transform.dense.bias       | UNEXPECTED | 
+cls.predictions.transform.dense.weight     | UNEXPECTED | 
+cls.seq_relationship.bias                  | UNEXPECTED | 
+cls.seq_relationship.weight                | UNEXPECTED | 
+classifier.bias                            | MISSING    | 
+classifier.weight                          | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your 
+downstream task.
+[17:33:59]     BERT/C3 epoch 1/2 loss=0.7201
+[17:46:21]     BERT/C3 epoch 2/2 loss=0.5544
+[17:51:20]   [BERT Base / BERT-Config-3] macro_f1=0.7499 acc=0.8430 (1755.9s)
+[17:51:20] stage_bert: wrote 3 runs, best macro_f1=0.7647
+--- BERT tuning (3 runs) done in 3531s
+
+======================================================================
+[5/6] held-out test evaluation (10 models)
+======================================================================
+[17:51:45] === Stage: setup ===
+[17:51:46]   cache hit  splits
+[17:51:47]   train budget 200,000 | val 303,213 | test 303,213
+[17:51:47]   cache hit  tfidf
+[17:51:50]   cache hit  sequences
+[17:51:51] === Classical ML on held-out test set ===
+[17:52:25]   Logistic Regression        macro_f1=0.7367 acc=0.8390 (train 34s / infer 0.2s)
+[17:52:26]   Naive Bayes                macro_f1=0.7211 acc=0.8329 (train 0s / infer 0.2s)
+[17:52:58]   Random Forest              macro_f1=0.6920 acc=0.8121 (train 31s / infer 0.8s)
+[17:52:58] === Recurrent networks on held-out test set ===
+[17:53:21]     SimpleRNN epoch 1/4 loss=1.6511 macro_f1=0.4462 acc=0.6350
+[17:53:42]     SimpleRNN epoch 2/4 loss=1.2640 macro_f1=0.5049 acc=0.6477
+[17:54:01]     SimpleRNN epoch 3/4 loss=1.1115 macro_f1=0.5316 acc=0.6708
+[17:54:20]     SimpleRNN epoch 4/4 loss=1.0615 macro_f1=0.5678 acc=0.6715
+[17:54:26]   SimpleRNN                  macro_f1=0.5685 acc=0.6722 (train 81s / infer 5.9s)
+[17:54:46]     GRU epoch 1/4 loss=1.0294 macro_f1=0.6768 acc=0.7885
+[17:55:05]     GRU epoch 2/4 loss=0.6302 macro_f1=0.7010 acc=0.8104
+[17:55:24]     GRU epoch 3/4 loss=0.5622 macro_f1=0.7197 acc=0.8171
+[17:55:44]     GRU epoch 4/4 loss=0.5128 macro_f1=0.7281 acc=0.8321
+[17:55:49]   GRU                        macro_f1=0.7274 acc=0.8326 (train 77s / infer 5.8s)
+[17:56:09]     LSTM epoch 1/4 loss=1.0967 macro_f1=0.6520 acc=0.7683
+[17:56:29]     LSTM epoch 2/4 loss=0.7183 macro_f1=0.6953 acc=0.8033
+[17:56:48]     LSTM epoch 3/4 loss=0.6316 macro_f1=0.6997 acc=0.8056
+[17:57:08]     LSTM epoch 4/4 loss=0.5795 macro_f1=0.7095 acc=0.8169
+[17:57:13]   LSTM                       macro_f1=0.7110 acc=0.8180 (train 78s / infer 5.8s)
+[17:57:45]     Bidirectional SimpleRNN epoch 1/4 loss=1.0398 macro_f1=0.6025 acc=0.7368
+[17:58:16]     Bidirectional SimpleRNN epoch 2/4 loss=0.8181 macro_f1=0.6574 acc=0.7814
+[17:58:47]     Bidirectional SimpleRNN epoch 3/4 loss=0.7672 macro_f1=0.6566 acc=0.7820
+[17:59:18]     Bidirectional SimpleRNN epoch 4/4 loss=0.7301 macro_f1=0.6302 acc=0.7637
+[17:59:27]   Bidirectional SimpleRNN    macro_f1=0.6600 acc=0.7824 (train 124s / infer 8.9s)
+[17:59:59]     Bidirectional GRU epoch 1/4 loss=0.8338 macro_f1=0.6801 acc=0.7860
+[18:00:32]     Bidirectional GRU epoch 2/4 loss=0.5838 macro_f1=0.7008 acc=0.8121
+[18:01:05]     Bidirectional GRU epoch 3/4 loss=0.5217 macro_f1=0.7214 acc=0.8177
+[18:01:37]     Bidirectional GRU epoch 4/4 loss=0.4686 macro_f1=0.7222 acc=0.8260
+[18:01:46]   Bidirectional GRU          macro_f1=0.7234 acc=0.8267 (train 131s / infer 8.4s)
+[18:02:21]     Bidirectional LSTM epoch 1/4 loss=0.9823 macro_f1=0.6878 acc=0.8015
+[18:02:56]     Bidirectional LSTM epoch 2/4 loss=0.6527 macro_f1=0.7047 acc=0.8133
+[18:03:30]     Bidirectional LSTM epoch 3/4 loss=0.5866 macro_f1=0.7089 acc=0.8175
+[18:04:05]     Bidirectional LSTM epoch 4/4 loss=0.5408 macro_f1=0.7164 acc=0.8169
+[18:04:14]   Bidirectional LSTM         macro_f1=0.7173 acc=0.8175 (train 139s / infer 9.2s)
+[18:04:18] === BERT Base on held-out test set ===
+[18:04:18]   tokenizing test (303,213 docs) ...
+[18:05:20]   tokenized test in 62.0s
+W0830 18:05:21.912000 12692 torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently 
+not supported in Windows or MacOs.
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 5044.61it/s]
+[18:09:50]   BERT Base                  macro_f1=0.7647 acc=0.8562 (train 1678s / infer 267.3s)
+[18:09:51] Wrote test_results.json (10 models) and test_predictions.npz
+--- held-out test evaluation (10 models) done in 1108s
+
+======================================================================
+[6/6] novelty: imbalance-strategy comparison
+======================================================================
+[18:10:13] === Stage: setup ===
+[18:10:13]   cache hit  splits
+[18:10:15]   train budget 200,000 | val 303,213 | test 303,213
+[18:10:15]   cache hit  tfidf
+[18:10:18]   cache hit  sequences
+[18:10:18] minority class ids: [6, 8, 4, 7]
+[18:10:18] === Classical: None vs Class Weighting ===
+[18:10:46]   Logistic Regression    None             macro=0.7703 minority4=0.6829 (28s)
+[18:11:23]   Logistic Regression    Class Weighting  macro=0.7367 minority4=0.6347 (37s)
+[18:11:23]   Naive Bayes            None             macro=0.7211 minority4=0.6304 (0s)
+[18:12:05]   Random Forest          None             macro=0.5702 minority4=0.3389 (42s)
+[18:12:34]   Random Forest          Class Weighting  macro=0.6920 minority4=0.5820 (29s)
+[18:12:34] === Classical: SMOTE (budget 200,000) ===
+[18:12:54]   SMOTE: (200000, 25000) -> (1072881, 25000) in 19s
+[18:18:13]   Logistic Regression    SMOTE            macro=0.7348 minority4=0.6353 (319s)
+[18:18:14]   Naive Bayes            SMOTE            macro=0.6873 minority4=0.5853 (1s)
+[18:31:55]   Random Forest          SMOTE            macro=0.7142 minority4=0.6198 (820s)
+[18:31:55] === Bi-LSTM: None vs Class Weighting vs Focal Loss ===
+[18:32:32]     BiLSTM/None epoch 1/4 loss=0.6529 macro_f1=0.7106 acc=0.8544
+[18:33:07]     BiLSTM/None epoch 2/4 loss=0.4305 macro_f1=0.7414 acc=0.8663
+[18:33:42]     BiLSTM/None epoch 3/4 loss=0.3916 macro_f1=0.7512 acc=0.8707
+[18:34:16]     BiLSTM/None epoch 4/4 loss=0.3684 macro_f1=0.7599 acc=0.8732
+[18:34:25]   Bidirectional LSTM     None             macro=0.7627 minority4=0.6718 (148s)
+[18:35:00]     BiLSTM/Class Weighting epoch 1/4 loss=0.9892 macro_f1=0.6740 acc=0.7959
+[18:35:33]     BiLSTM/Class Weighting epoch 2/4 loss=0.6582 macro_f1=0.7026 acc=0.8165
+[18:36:08]     BiLSTM/Class Weighting epoch 3/4 loss=0.5911 macro_f1=0.7083 acc=0.8099
+[18:36:41]     BiLSTM/Class Weighting epoch 4/4 loss=0.5423 macro_f1=0.7086 acc=0.8159
+[18:36:51]   Bidirectional LSTM     Class Weighting  macro=0.7088 minority4=0.5931 (146s)
+[18:37:25]     BiLSTM/Focal Loss (gamma=2) epoch 1/4 loss=0.6362 macro_f1=0.6684 acc=0.7830
+[18:37:59]     BiLSTM/Focal Loss (gamma=2) epoch 2/4 loss=0.3833 macro_f1=0.6845 acc=0.8013
+[18:38:34]     BiLSTM/Focal Loss (gamma=2) epoch 3/4 loss=0.3322 macro_f1=0.6981 acc=0.8056
+[18:39:08]     BiLSTM/Focal Loss (gamma=2) epoch 4/4 loss=0.2999 macro_f1=0.7079 acc=0.8149
+[18:39:17]   Bidirectional LSTM     Focal Loss (gamma=2) macro=0.7090 minority4=0.6010 (146s)
+[18:39:21] === BERT: Focal Loss ===
+W0830 18:39:24.796000 9508 torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently 
+not supported in Windows or MacOs.
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3271.73it/s]
+[1mBertForSequenceClassification LOAD REPORT[0m from: bert-base-uncased
+Key                                        | Status     | 
+-------------------------------------------+------------+-
+cls.predictions.transform.dense.bias       | UNEXPECTED | 
+cls.predictions.bias                       | UNEXPECTED | 
+cls.predictions.transform.dense.weight     | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | 
+cls.seq_relationship.weight                | UNEXPECTED | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED | 
+cls.seq_relationship.bias                  | UNEXPECTED | 
+classifier.weight                          | MISSING    | 
+classifier.bias                            | MISSING    | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+- MISSING:	those params were newly initialized because missing from the checkpoint. Consider training on your 
+downstream task.
+[18:51:28]     BERT/focal epoch 1/2 loss=0.4352
+[19:03:54]     BERT/focal epoch 2/2 loss=0.2872
+[19:08:39]   BERT Base              Focal Loss (gamma=2) macro=0.7506 minority4=0.6736 (1753s)
+[19:08:39] Wrote novelty_results.json (12 rows)
+--- novelty: imbalance-strategy comparison done in 3533s
+
+ALL STAGES COMPLETE in 137.7 min

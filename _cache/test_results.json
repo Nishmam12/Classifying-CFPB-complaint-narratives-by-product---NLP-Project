@@ -1,0 +1,102 @@
+[
+  {
+    "Model": "BERT Base",
+    "Paradigm": "Transformer",
+    "Best Config": "BERT-Config-1",
+    "Test Accuracy": 0.8562,
+    "Test Macro F1": 0.7647,
+    "Test Weighted F1": 0.8613,
+    "Train Time (s)": 1678.1,
+    "Inference Time (s)": 267.3
+  },
+  {
+    "Model": "Logistic Regression",
+    "Paradigm": "Classical ML",
+    "Best Config": "LR-C1.0",
+    "Test Accuracy": 0.839,
+    "Test Macro F1": 0.7367,
+    "Test Weighted F1": 0.8468,
+    "Train Time (s)": 34.5,
+    "Inference Time (s)": 0.2
+  },
+  {
+    "Model": "GRU",
+    "Paradigm": "Recurrent Neural Net",
+    "Best Config": "Config-2",
+    "Test Accuracy": 0.8326,
+    "Test Macro F1": 0.7274,
+    "Test Weighted F1": 0.842,
+    "Train Time (s)": 77.2,
+    "Inference Time (s)": 5.8
+  },
+  {
+    "Model": "Bidirectional GRU",
+    "Paradigm": "Recurrent Neural Net",
+    "Best Config": "Config-2",
+    "Test Accuracy": 0.8267,
+    "Test Macro F1": 0.7234,
+    "Test Weighted F1": 0.8376,
+    "Train Time (s)": 130.6,
+    "Inference Time (s)": 8.4
+  },
+  {
+    "Model": "Naive Bayes",
+    "Paradigm": "Classical ML",
+    "Best Config": "NB-a0.01",
+    "Test Accuracy": 0.8329,
+    "Test Macro F1": 0.7211,
+    "Test Weighted F1": 0.8357,
+    "Train Time (s)": 0.1,
+    "Inference Time (s)": 0.2
+  },
+  {
+    "Model": "Bidirectional LSTM",
+    "Paradigm": "Recurrent Neural Net",
+    "Best Config": "Config-1",
+    "Test Accuracy": 0.8175,
+    "Test Macro F1": 0.7173,
+    "Test Weighted F1": 0.8274,
+    "Train Time (s)": 139.1,
+    "Inference Time (s)": 9.2
+  },
+  {
+    "Model": "LSTM",
+    "Paradigm": "Recurrent Neural Net",
+    "Best Config": "Config-2",
+    "Test Accuracy": 0.818,
+    "Test Macro F1": 0.711,
+    "Test Weighted F1": 0.8276,
+    "Train Time (s)": 78.2,
+    "Inference Time (s)": 5.8
+  },
+  {
+    "Model": "Random Forest",
+    "Paradigm": "Classical ML",
+    "Best Config": "RF-n50-d50",
+    "Test Accuracy": 0.8121,
+    "Test Macro F1": 0.692,
+    "Test Weighted F1": 0.8197,
+    "Train Time (s)": 31.0,
+    "Inference Time (s)": 0.8
+  },
+  {
+    "Model": "Bidirectional SimpleRNN",
+    "Paradigm": "Recurrent Neural Net",
+    "Best Config": "Config-2",
+    "Test Accuracy": 0.7824,
+    "Test Macro F1": 0.66,
+    "Test Weighted F1": 0.7944,
+    "Train Time (s)": 124.2,
+    "Inference Time (s)": 8.9
+  },
+  {
+    "Model": "SimpleRNN",
+    "Paradigm": "Recurrent Neural Net",
+    "Best Config": "Config-3",
+    "Test Accuracy": 0.6722,
+    "Test Macro F1": 0.5685,
+    "Test Weighted F1": 0.6943,
+    "Train Time (s)": 80.5,
+    "Inference Time (s)": 5.9
+  }
+]

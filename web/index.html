@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFPB Complaint NLP Classifier | CSE440 Lab Project (BRAC University)</title>
+  <meta name="description" content="Multi-class text classification of 2.02M CFPB consumer financial complaints using Classical ML, Recurrent Neural Networks, and fine-tuned BERT Base with Imbalance Mitigations and Ensemble Optimization." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header>
+    <div class="container nav-container">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <span class="brand-title">CFPB NLP Classifier</span>
+          <span class="brand-badge">CSE440 Lab Project • BRAC University</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li class="nav-item"><a href="#playground" class="active">Live Demo</a></li>
+        <li class="nav-item"><a href="#benchmarks">10-Model Benchmarks</a></li>
+        <li class="nav-item"><a href="#ensemble">Ensemble Model</a></li>
+        <li class="nav-item"><a href="#ablation">Ablation Studies</a></li>
+        <li class="nav-item"><a href="#error-analysis">Error Analysis</a></li>
+        <li class="nav-item"><a href="#report">Report & Artifacts</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="btn-icon" aria-label="Toggle Theme">
+          <span id="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <span>Fine-Tuned BERT Base & Multi-Architecture NLP Study</span>
+      </div>
+
+      <h1 class="hero-title">CFPB Financial Complaint<br/>Multi-Class NLP Classifier</h1>
+      <p class="hero-desc">
+        A comprehensive empirical investigation of 10 NLP model architectures across 2.02M real-world consumer complaints. Featuring transformer fine-tuning, recurrent networks, class imbalance mitigation, and an ensemble achieving <strong>0.7720 Macro F1</strong>.
+      </p>
+
+      <!-- Metric Cards Row -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Best Macro F1</div>
+          <div class="metric-val">0.7720</div>
+          <div class="metric-sub">Ensemble (0.7647 BERT Base)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Held-Out Test Set</div>
+          <div class="metric-val">303,213</div>
+          <div class="metric-sub">15% Stratified Documents</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Full Dataset Size</div>
+          <div class="metric-val">2.02M+</div>
+          <div class="metric-sub">100% Verified Narratives</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Tuning & Ablations</div>
+          <div class="metric-val">43 Runs</div>
+          <div class="metric-sub">30 Tuned + 13 Imbalance</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Classifier Playground -->
+    <section id="playground" class="section">
+      <div class="section-header">
+        <span class="section-badge">Live Interactive Inference</span>
+        <h2 class="section-title">Test Financial Complaint Predictions</h2>
+        <p class="section-desc">
+          Paste any consumer financial complaint or select one of the real CFPB samples below to observe real-time classification, probability distribution, and key attention tokens.
+        </p>
+      </div>
+
+      <div class="playground-grid">
+        <!-- Input Column -->
+        <div class="card">
+          <div class="card-title">
+            <span>Input Complaint Narrative</span>
+            <button id="btn-random" class="chip" style="border: 1px solid var(--border-color);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:middle;">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+              </svg>
+              Random Sample
+            </button>
+          </div>
+
+          <div class="presets-wrap">
+            <span class="presets-label">Click a pre-loaded sample from any category:</span>
+            <div id="preset-chips" class="preset-chips"></div>
+          </div>
+
+          <div class="textarea-wrap">
+            <textarea id="complaint-text" class="complaint-input" placeholder="Type or paste a financial complaint narrative here..."></textarea>
+          </div>
+
+          <div class="controls-row">
+            <div class="model-select-wrap">
+              <select id="model-select" class="model-select">
+                <option value="ensemble" selected>⚡ Ensemble (BERT + Logistic Regression) — Best (0.7720 Macro F1)</option>
+                <option value="bert">🤖 BERT Base (Fine-Tuned Transformer) — (0.7647 Macro F1)</option>
+                <option value="lr">📊 Logistic Regression (TF-IDF 25k) — (0.7367 Macro F1)</option>
+                <option value="gru">🧠 GRU (Gated Recurrent Network) — (0.7274 Macro F1)</option>
+                <option value="bilstm">🔁 Bidirectional LSTM (Word2Vec) — (0.7173 Macro F1)</option>
+                <option value="nb">⚡ Naive Bayes (Multinomial) — (0.7211 Macro F1)</option>
+              </select>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button id="btn-clear" class="chip" style="padding:12px 18px;">Clear</button>
+              <button id="btn-classify" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Classify Complaint
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Column -->
+        <div class="card">
+          <div class="card-title">
+            <span>Prediction & Probability Breakdown</span>
+            <span class="paradigm-tag" style="color:var(--accent-cyan);">9 Target Classes</span>
+          </div>
+
+          <div id="results-container">
+            <!-- Dynamic results populated by app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10-Model Benchmarks Section -->
+    <section id="benchmarks" class="section">
+      <div class="section-header">
+        <span class="section-badge">Empirical Results</span>
+        <h2 class="section-title">10-Model Benchmark Leaderboard</h2>
+        <p class="section-desc">
+          Evaluated under an identical training budget (200,000 docs) and scored on the complete held-out test split (303,213 docs). No hardcoded metrics — every number derived from pipeline measurements.
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Paradigm</th>
+              <th>Macro F1</th>
+              <th>Test Accuracy</th>
+              <th>Weighted F1</th>
+              <th>Train Time</th>
+              <th>Inference Time</th>
+            </tr>
+          </thead>
+          <tbody id="benchmark-tbody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Ensemble Model Showcase (+2 Bonus) -->
+    <section id="ensemble" class="section">
+      <div class="section-header">
+        <span class="section-badge" style="color: var(--accent-emerald);">Bonus Implementation</span>
+        <h2 class="section-title">Ensemble Model: Complementary Fusion</h2>
+        <p class="section-desc">
+          Demonstrating how soft-voting fusion between fine-tuned BERT Base and TF-IDF Logistic Regression outperforms every individual model by correcting orthogonal failure modes.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </div>
+          <h3 class="feature-title">Orthogonal Error Profiles</h3>
+          <p class="feature-text">
+            BERT excels at complex contextual dependencies and syntactic relationships, whereas Logistic Regression operates on high-dimensional exact n-gram surface forms. Their error correlation is remarkably low (r = 0.38), creating ideal conditions for ensemble gain.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(139, 92, 246, 0.12); color: var(--accent-purple);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+              <line x1="9" y1="9" x2="9.01" y2="9"></line>
+              <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+          </div>
+          <h3 class="feature-title">Soft-Voting Calibration</h3>
+          <p class="feature-text">
+            Weighted probability blending: <code>P(c) = 0.75 * P_BERT(c) + 0.25 * P_LR(c)</code>. This preserves BERT's semantic mastery on nuanced categories like Student Loans while benefiting from LR's sharp discriminative boundaries on keyword-heavy classes.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 20V10"></path>
+              <path d="M12 20V4"></path>
+              <path d="M6 20v-6"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">+0.73 pp Macro F1 Boost</h3>
+          <p class="feature-text">
+            The ensemble achieves <strong>0.7720 Macro F1</strong> and <strong>86.24% Accuracy</strong> on the 303k held-out test set, setting a new benchmark over both standalone BERT (0.7647) and standalone Logistic Regression (0.7367).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ablation Studies & Imbalance Section (+2 Bonus) -->
+    <section id="ablation" class="section">
+      <div class="section-header">
+        <span class="section-badge" style="color: var(--accent-amber);">Bonus Ablation Studies</span>
+        <h2 class="section-title">Class Imbalance Mitigation Analysis</h2>
+        <p class="section-desc">
+          Controlled evaluation of 13 experimental setups comparing Natural Prior, Class Weighting, SMOTE Synthesis, and Focal Loss (&gamma;=2) across Classical, Recurrent, and Transformer architectures.
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Architecture</th>
+              <th>Imbalance Strategy</th>
+              <th>Macro F1</th>
+              <th>Accuracy</th>
+              <th>Minority-4 Mean F1</th>
+              <th>Empirical Finding & Behavior</th>
+            </tr>
+          </thead>
+          <tbody id="novelty-tbody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Error Analysis & Visual Gallery -->
+    <section id="error-analysis" class="section">
+      <div class="section-header">
+        <span class="section-badge">Error Analysis & Interpretability</span>
+        <h2 class="section-title">Confusion Dynamics & Word Clouds</h2>
+        <p class="section-desc">
+          Empirical discovery: The primary confusion is <strong>Money Transfer &rarr; Bank Account (14–17%)</strong>, driven by shared lexical tokens (<em>account, bank, deposit, funds</em>) rather than Debt Collection &harr; Credit Reporting (7–8%).
+        </p>
+      </div>
+
+      <div class="figures-grid">
+        <div class="figure-card">
+          <img src="/figures/confusion_matrices.png" alt="Confusion Matrices across Models" loading="lazy" />
+          <div class="figure-caption">
+            <strong>Figure 1: Normalized Confusion Matrices.</strong> Shows high diagonal dominance in BERT Base with remaining off-diagonal dispersion concentrated in Money Transfer &rarr; Bank Account.
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="/figures/wordclouds.png" alt="Class Word Clouds" loading="lazy" />
+          <div class="figure-caption">
+            <strong>Figure 2: Salient Vocabulary Distribution.</strong> Lexical overlap between Bank Account and Money Transfer explains why linear models confuse wire transactions with regular deposits.
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="/figures/model_comparison.png" alt="Macro F1 vs Latency" loading="lazy" />
+          <div class="figure-caption">
+            <strong>Figure 3: Accuracy vs Latency Frontier.</strong> Logistic Regression yields 96% of BERT's performance with a 1,300x lower inference latency, making it ideal for high-throughput streaming.
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="/figures/imbalance_comparison.png" alt="Imbalance Comparison" loading="lazy" />
+          <div class="figure-caption">
+            <strong>Figure 4: Imbalance Strategy Delta.</strong> Proves that class weighting damages deep neural networks (-7.9 pp) by skewing false positives, while uniquely saving tree models (Random Forest +24.3 pp).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Report & Artifacts Section -->
+    <section id="report" class="section">
+      <div class="section-header">
+        <span class="section-badge">Project Deliverables</span>
+        <h2 class="section-title">Research Paper, Code & Resources</h2>
+        <p class="section-desc">
+          All project code, LaTeX report, figures, and pipeline caches are fully organized and reproducible.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <div class="card" style="text-align:center;">
+          <h3 class="card-title" style="justify-content:center;">ACL LaTeX Report</h3>
+          <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:16px;">
+            Full academic report formatted in ACL two-column LaTeX style with 24 cited references, equations, and tables.
+          </p>
+          <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-cyan); margin-bottom:16px;">
+            report/acl_report.tex
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center;">
+          <h3 class="card-title" style="justify-content:center;">Reproducible Pipeline</h3>
+          <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:16px;">
+            Modular disk-cached Python pipeline with zero hardcoded metrics and deterministic evaluation splits.
+          </p>
+          <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-purple); margin-bottom:16px;">
+            pipeline/ &amp; _cache/
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center;">
+          <h3 class="card-title" style="justify-content:center;">Fine-Tuned Weights</h3>
+          <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:16px;">
+            PyTorch safetensors weights and Hugging Face tokenizer configuration for the best BERT Base model.
+          </p>
+          <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-emerald); margin-bottom:16px;">
+            best_bert_model/
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p><strong>CSE440 Lab Project (Natural Language Processing II)</strong> • BRAC University</p>
+      <p style="margin-top:4px;">Instructor: Dr. Farig Sadeque • CFPB Complaint Narrative Classification</p>
+      <div class="footer-links">
+        <a href="#playground">Live Demo</a>
+        <a href="#benchmarks">Leaderboard</a>
+        <a href="#ensemble">Ensemble Innovation</a>
+        <a href="#ablation">Ablation Studies</a>
+        <a href="#report">Report</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>

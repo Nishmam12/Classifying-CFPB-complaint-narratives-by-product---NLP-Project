@@ -1,0 +1,13 @@
+﻿[11:50:33] === Stage: setup ===
+[11:50:33]   cache hit  splits
+[11:50:43]   train budget 200,000 | val 303,213 | test 303,213
+[11:50:43]   cache hit  tfidf
+[11:50:47] === Classical ML tuning (9 runs) ===
+[11:51:13]   [Logistic Regression / LR-C0.1] macro_f1=0.7221 acc=0.8231 (26.0s)
+[11:52:13]   [Logistic Regression / LR-C1.0] macro_f1=0.7346 acc=0.8375 (59.3s)
+[11:53:17]   [Logistic Regression / LR-C5.0] macro_f1=0.7309 acc=0.8408 (64.8s)
+[11:53:18]   [Naive Bayes / NB-a0.01] macro_f1=0.7191 acc=0.8313 (0.5s)
+[11:53:18]   [Naive Bayes / NB-a0.1] macro_f1=0.7152 acc=0.8297 (0.5s)
+[11:53:19]   [Naive Bayes / NB-a1.0] macro_f1=0.6355 acc=0.8190 (0.5s)
+[11:53:29]   [Random Forest / RF-n50-d20] macro_f1=0.6529 acc=0.7787 (9.8s)
+[11:53:50]   [Random Forest / RF-n50-d30] macro_f1=0.6718 acc=0.7938 (21.2s)

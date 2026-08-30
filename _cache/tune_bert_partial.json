@@ -1,0 +1,32 @@
+[
+  {
+    "Model": "BERT Base",
+    "Category": "Transformer",
+    "Config ID": "BERT-Config-1",
+    "Hyperparameters": "{\"batch_size\": 32, \"epochs\": 2, \"lr\": 2e-05}",
+    "Val Accuracy": 0.8558,
+    "Val Macro F1": 0.7647,
+    "Val Weighted F1": 0.8609,
+    "Training Time (s)": 1678.12
+  },
+  {
+    "Model": "BERT Base",
+    "Category": "Transformer",
+    "Config ID": "BERT-Config-2",
+    "Hyperparameters": "{\"batch_size\": 32, \"epochs\": 2, \"lr\": 3e-05}",
+    "Val Accuracy": 0.8444,
+    "Val Macro F1": 0.748,
+    "Val Weighted F1": 0.8534,
+    "Training Time (s)": 1712.8
+  },
+  {
+    "Model": "BERT Base",
+    "Category": "Transformer",
+    "Config ID": "BERT-Config-3",
+    "Hyperparameters": "{\"batch_size\": 32, \"epochs\": 2, \"lr\": 5e-05}",
+    "Val Accuracy": 0.843,
+    "Val Macro F1": 0.7499,
+    "Val Weighted F1": 0.8495,
+    "Training Time (s)": 1755.91
+  }
+]

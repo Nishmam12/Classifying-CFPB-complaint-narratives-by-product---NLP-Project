@@ -1,0 +1,98 @@
+[
+  {
+    "Model": "Logistic Regression",
+    "Category": "Classical ML",
+    "Config ID": "LR-C0.1",
+    "Hyperparameters": "{\"C\": 0.1, \"class_weight\": \"balanced\", \"max_iter\": 1000, \"solver\": \"lbfgs\"}",
+    "Val Accuracy": 0.8229,
+    "Val Macro F1": 0.722,
+    "Val Weighted F1": 0.8321,
+    "Training Time (s)": 19.52,
+    "Converged": true,
+    "n_iter": 84
+  },
+  {
+    "Model": "Logistic Regression",
+    "Category": "Classical ML",
+    "Config ID": "LR-C1.0",
+    "Hyperparameters": "{\"C\": 1.0, \"class_weight\": \"balanced\", \"max_iter\": 1000, \"solver\": \"lbfgs\"}",
+    "Val Accuracy": 0.8375,
+    "Val Macro F1": 0.7346,
+    "Val Weighted F1": 0.8454,
+    "Training Time (s)": 37.59,
+    "Converged": true,
+    "n_iter": 144
+  },
+  {
+    "Model": "Logistic Regression",
+    "Category": "Classical ML",
+    "Config ID": "LR-C5.0",
+    "Hyperparameters": "{\"C\": 5.0, \"class_weight\": \"balanced\", \"max_iter\": 1000, \"solver\": \"lbfgs\"}",
+    "Val Accuracy": 0.8409,
+    "Val Macro F1": 0.7323,
+    "Val Weighted F1": 0.8477,
+    "Training Time (s)": 75.69,
+    "Converged": true,
+    "n_iter": 277
+  },
+  {
+    "Model": "Naive Bayes",
+    "Category": "Classical ML",
+    "Config ID": "NB-a0.01",
+    "Hyperparameters": "{\"alpha\": 0.01}",
+    "Val Accuracy": 0.8313,
+    "Val Macro F1": 0.7195,
+    "Val Weighted F1": 0.834,
+    "Training Time (s)": 0.37
+  },
+  {
+    "Model": "Naive Bayes",
+    "Category": "Classical ML",
+    "Config ID": "NB-a0.1",
+    "Hyperparameters": "{\"alpha\": 0.1}",
+    "Val Accuracy": 0.8297,
+    "Val Macro F1": 0.7155,
+    "Val Weighted F1": 0.8324,
+    "Training Time (s)": 0.35
+  },
+  {
+    "Model": "Naive Bayes",
+    "Category": "Classical ML",
+    "Config ID": "NB-a1.0",
+    "Hyperparameters": "{\"alpha\": 1.0}",
+    "Val Accuracy": 0.819,
+    "Val Macro F1": 0.6362,
+    "Val Weighted F1": 0.8171,
+    "Training Time (s)": 0.33
+  },
+  {
+    "Model": "Random Forest",
+    "Category": "Classical ML",
+    "Config ID": "RF-n50-d20",
+    "Hyperparameters": "{\"class_weight\": \"balanced\", \"max_depth\": 20, \"n_estimators\": 50}",
+    "Val Accuracy": 0.7806,
+    "Val Macro F1": 0.652,
+    "Val Weighted F1": 0.7916,
+    "Training Time (s)": 5.97
+  },
+  {
+    "Model": "Random Forest",
+    "Category": "Classical ML",
+    "Config ID": "RF-n50-d30",
+    "Hyperparameters": "{\"class_weight\": \"balanced\", \"max_depth\": 30, \"n_estimators\": 50}",
+    "Val Accuracy": 0.7952,
+    "Val Macro F1": 0.6701,
+    "Val Weighted F1": 0.805,
+    "Training Time (s)": 12.16
+  },
+  {
+    "Model": "Random Forest",
+    "Category": "Classical ML",
+    "Config ID": "RF-n50-d50",
+    "Hyperparameters": "{\"class_weight\": \"balanced\", \"max_depth\": 50, \"n_estimators\": 50}",
+    "Val Accuracy": 0.8112,
+    "Val Macro F1": 0.6899,
+    "Val Weighted F1": 0.8188,
+    "Training Time (s)": 32.82
+  }
+]

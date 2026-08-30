@@ -1,0 +1,182 @@
+[
+  {
+    "Model": "SimpleRNN",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-1",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 64, \"lr\": 0.001}",
+    "Val Accuracy": 0.7189,
+    "Val Macro F1": 0.5412,
+    "Val Weighted F1": 0.7348,
+    "Training Time (s)": 104.0
+  },
+  {
+    "Model": "SimpleRNN",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-2",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.001}",
+    "Val Accuracy": 0.725,
+    "Val Macro F1": 0.5922,
+    "Val Weighted F1": 0.7446,
+    "Training Time (s)": 100.26
+  },
+  {
+    "Model": "SimpleRNN",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-3",
+    "Hyperparameters": "{\"dropout\": 0.4, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.0005}",
+    "Val Accuracy": 0.7516,
+    "Val Macro F1": 0.6121,
+    "Val Weighted F1": 0.7667,
+    "Training Time (s)": 101.46
+  },
+  {
+    "Model": "GRU",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-1",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 64, \"lr\": 0.001}",
+    "Val Accuracy": 0.8093,
+    "Val Macro F1": 0.7099,
+    "Val Weighted F1": 0.8206,
+    "Training Time (s)": 93.9
+  },
+  {
+    "Model": "GRU",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-2",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.001}",
+    "Val Accuracy": 0.8237,
+    "Val Macro F1": 0.7153,
+    "Val Weighted F1": 0.8356,
+    "Training Time (s)": 88.32
+  },
+  {
+    "Model": "GRU",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-3",
+    "Hyperparameters": "{\"dropout\": 0.4, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.0005}",
+    "Val Accuracy": 0.8155,
+    "Val Macro F1": 0.7093,
+    "Val Weighted F1": 0.827,
+    "Training Time (s)": 76.61
+  },
+  {
+    "Model": "LSTM",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-1",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 64, \"lr\": 0.001}",
+    "Val Accuracy": 0.8111,
+    "Val Macro F1": 0.7057,
+    "Val Weighted F1": 0.8215,
+    "Training Time (s)": 72.58
+  },
+  {
+    "Model": "LSTM",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-2",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.001}",
+    "Val Accuracy": 0.8154,
+    "Val Macro F1": 0.7098,
+    "Val Weighted F1": 0.8261,
+    "Training Time (s)": 78.21
+  },
+  {
+    "Model": "LSTM",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-3",
+    "Hyperparameters": "{\"dropout\": 0.4, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.0005}",
+    "Val Accuracy": 0.8072,
+    "Val Macro F1": 0.6955,
+    "Val Weighted F1": 0.8181,
+    "Training Time (s)": 81.06
+  },
+  {
+    "Model": "Bidirectional SimpleRNN",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-1",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 64, \"lr\": 0.001}",
+    "Val Accuracy": 0.7853,
+    "Val Macro F1": 0.6609,
+    "Val Weighted F1": 0.7977,
+    "Training Time (s)": 137.46
+  },
+  {
+    "Model": "Bidirectional SimpleRNN",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-2",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.001}",
+    "Val Accuracy": 0.7975,
+    "Val Macro F1": 0.6748,
+    "Val Weighted F1": 0.8072,
+    "Training Time (s)": 127.33
+  },
+  {
+    "Model": "Bidirectional SimpleRNN",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-3",
+    "Hyperparameters": "{\"dropout\": 0.4, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.0005}",
+    "Val Accuracy": 0.781,
+    "Val Macro F1": 0.6644,
+    "Val Weighted F1": 0.7946,
+    "Training Time (s)": 138.05
+  },
+  {
+    "Model": "Bidirectional GRU",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-1",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 64, \"lr\": 0.001}",
+    "Val Accuracy": 0.8239,
+    "Val Macro F1": 0.7161,
+    "Val Weighted F1": 0.8345,
+    "Training Time (s)": 149.36
+  },
+  {
+    "Model": "Bidirectional GRU",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-2",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.001}",
+    "Val Accuracy": 0.82,
+    "Val Macro F1": 0.7201,
+    "Val Weighted F1": 0.8308,
+    "Training Time (s)": 141.84
+  },
+  {
+    "Model": "Bidirectional GRU",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-3",
+    "Hyperparameters": "{\"dropout\": 0.4, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.0005}",
+    "Val Accuracy": 0.8066,
+    "Val Macro F1": 0.7049,
+    "Val Weighted F1": 0.8185,
+    "Training Time (s)": 136.54
+  },
+  {
+    "Model": "Bidirectional LSTM",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-1",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 64, \"lr\": 0.001}",
+    "Val Accuracy": 0.8255,
+    "Val Macro F1": 0.7178,
+    "Val Weighted F1": 0.8352,
+    "Training Time (s)": 147.67
+  },
+  {
+    "Model": "Bidirectional LSTM",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-2",
+    "Hyperparameters": "{\"dropout\": 0.3, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.001}",
+    "Val Accuracy": 0.8216,
+    "Val Macro F1": 0.7136,
+    "Val Weighted F1": 0.8321,
+    "Training Time (s)": 136.26
+  },
+  {
+    "Model": "Bidirectional LSTM",
+    "Category": "Recurrent Neural Net",
+    "Config ID": "Config-3",
+    "Hyperparameters": "{\"dropout\": 0.4, \"epochs\": 4, \"hidden_dim\": 128, \"lr\": 0.0005}",
+    "Val Accuracy": 0.8158,
+    "Val Macro F1": 0.7104,
+    "Val Weighted F1": 0.8266,
+    "Training Time (s)": 121.08
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "config_id": "BERT-Config-1",
+  "lr": 2e-05,
+  "batch_size": 32,
+  "epochs": 2
+}

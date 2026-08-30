@@ -1,0 +1,41 @@
+{
+  "keys": [
+    "y_train_full",
+    "y_train",
+    "y_val",
+    "y_test",
+    "sub_idx",
+    "train_classical",
+    "train_contextual",
+    "train_classical_full",
+    "val_classical",
+    "val_contextual",
+    "test_classical",
+    "test_contextual"
+  ],
+  "files": [
+    "split_y_train_full.npy",
+    "split_y_train.npy",
+    "split_y_val.npy",
+    "split_y_test.npy",
+    "split_sub_idx.npy",
+    "split_train_classical.npy",
+    "split_train_contextual.npy",
+    "split_train_classical_full.npy",
+    "split_val_classical.npy",
+    "split_val_contextual.npy",
+    "split_test_classical.npy",
+    "split_test_contextual.npy"
+  ],
+  "classes": [
+    "Bank account or service",
+    "Credit card / prepaid card",
+    "Credit reporting",
+    "Debt collection",
+    "Money transfer / virtual currency",
+    "Mortgage",
+    "Payday / title / personal loan",
+    "Student loan",
+    "Vehicle / consumer loan"
+  ]
+}
