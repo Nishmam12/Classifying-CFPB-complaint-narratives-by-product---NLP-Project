@@ -113,15 +113,21 @@ def build_env():
     import torch
     import torch.nn as nn
     from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-    from sklearn.metrics import classification_report, confusion_matrix
+    from sklearn.metrics import classification_report, confusion_matrix, f1_score
 
     env = {
         "pd": pd, "np": np, "plt": plt, "json": json, "re": _re, "sns": sns,
         "torch": torch, "nn": nn, "ENGLISH_STOP_WORDS": ENGLISH_STOP_WORDS,
         "confusion_matrix": confusion_matrix, "classification_report": classification_report,
+        "f1_score": f1_score,
         "class_names": list(S["classes"]),
         "y_test": S["y_test"],
+        "ENSEMBLE_PRED_PATH": cpath("ensemble_predictions.npz"),
     }
+
+    ens = load_json("ensemble_results.json")
+    if ens:
+        env["ens"] = ens
 
     tuning = []
     for f in ["tune_classical.json", "tune_recurrent.json", "tune_bert.json"]:
@@ -324,6 +330,35 @@ def main(out_path=None):
         log("  discussion regenerated: cell 53 (Section 14.1)")
     else:
         log("  SKIPPED cell 53 - novelty results not available yet")
+
+    # 4b. ensemble section, appended after the Section 14 discussion
+    ens = env.get("ens")
+    if ens and not any("## 15." in "".join(c["source"]) for c in nb["cells"]):
+        cells = [
+            {"cell_type": "markdown", "metadata": {},
+             "source": nb_cells.ENSEMBLE_MD.splitlines(keepends=True)},
+        ]
+        try:
+            outs = exec_cell(nb_cells.ENSEMBLE_CELL, env)
+            log(f"  executed:        ensemble cell -> {len(outs)} output(s)")
+        except Exception as ex:
+            outs = []
+            log(f"  ENSEMBLE CELL FAILED: {type(ex).__name__}: {ex}")
+        cells.append({"cell_type": "code", "metadata": {}, "execution_count": None,
+                      "outputs": outs,
+                      "source": nb_cells.ENSEMBLE_CELL.splitlines(keepends=True)})
+
+        ens_preds = None
+        p = cpath("ensemble_predictions.npz")
+        if os.path.exists(p):
+            ens_preds = np.load(p)["ensemble"]
+        md15 = discussion.build_section_15(
+            ens, test_rows or [], env["y_test"], ens_preds,
+            env.get("test_predictions_dict", {}), env["class_names"])
+        cells.append({"cell_type": "markdown", "metadata": {},
+                      "source": md15.splitlines(keepends=True)})
+        nb["cells"].extend(cells)
+        log(f"  ensemble section appended ({len(cells)} cells)")
 
     # 5a. word clouds, appended to the end of the preprocessing section (they
     # need the cleaned narrative_classical field, which Section 9 creates)

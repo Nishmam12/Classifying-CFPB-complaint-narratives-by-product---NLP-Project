@@ -317,6 +317,89 @@ for model_name in ['Logistic Regression', 'Bidirectional LSTM', 'BERT Base']:
                                 digits=4, zero_division=0))
 '''
 
+ENSEMBLE_MD = """## 15. Ensemble of the Best-Performing Models
+
+Section 13 showed that the three paradigms make *qualitatively different* errors:
+BERT halves the *Payday*→*Vehicle loan* confusion that hurts Logistic Regression,
+while worsening *Payday*→*Debt collection*. Errors that are not correlated can be
+voted away, which is the premise of this section.
+
+**Selection protocol.** Ensemble membership is chosen on the **validation** split
+and the winning combination is scored on the test split exactly once. This
+matters: a search over hundreds of candidate combinations will always find one
+that flatters the split it was selected on, so choosing members by test
+performance would report a gain that does not generalise. The validation-selected
+ensemble is the honest number.
+
+Both voting schemes are evaluated:
+
+- **Hard voting** — plurality over each model's predicted label, ties broken
+  toward the member with the higher validation Macro F1.
+- **Soft voting** — argmax of the summed class probability distributions, either
+  uniformly weighted or weighted by each member's validation Macro F1.
+"""
+
+ENSEMBLE_CELL = '''# Ensemble results: members selected on validation, scored once on the test split
+ensemble_summary = pd.DataFrame([{
+    'Scheme': f"{ens['scheme']} voting ({ens['weighting']})",
+    'Members': len(ens['members']),
+    'Val Macro F1': ens['val_macro_f1'],
+    'Test Macro F1': ens['test_macro_f1'],
+    'Test Accuracy': ens['test_accuracy'],
+    'Test Weighted F1': ens['test_weighted_f1'],
+}])
+
+print("=== Selected Ensemble (members chosen on validation) ===")
+print(f"  Scheme       : {ens['scheme']} voting, {ens['weighting']} weighting")
+print(f"  Members      : {', '.join(ens['members'])}")
+print(f"  Candidates   : {ens['candidates_evaluated']} combinations evaluated on validation")
+print()
+print(ensemble_summary.to_string(index=False))
+
+print("\\n=== Ensemble vs Best Single Model (held-out test set) ===")
+comparison_df = pd.DataFrame([
+    {'System': ens['best_single_model'] + ' (best single)',
+     'Test Macro F1': ens['best_single_test_macro_f1']},
+    {'System': 'Ensemble (' + ens['scheme'] + ' voting)',
+     'Test Macro F1': ens['test_macro_f1']},
+])
+print(comparison_df.to_string(index=False))
+print(f"\\nImprovement over best single model: {ens['delta_pp']:+.2f} pp Macro F1")
+
+# Per-class F1 shows where the ensemble actually gains over the strongest member
+ens_preds = np.load(ENSEMBLE_PRED_PATH)['ensemble']
+best_preds = test_predictions_dict[ens['best_single_model']]
+
+per_class = pd.DataFrame({
+    'Class': class_names,
+    'Support': [int((y_test == i).sum()) for i in range(9)],
+    ens['best_single_model']: f1_score(y_test, best_preds, average=None,
+                                       labels=list(range(9)), zero_division=0).round(4),
+    'Ensemble': f1_score(y_test, ens_preds, average=None,
+                         labels=list(range(9)), zero_division=0).round(4),
+})
+per_class['Delta'] = (per_class['Ensemble'] - per_class[ens['best_single_model']]).round(4)
+print("\\n=== Per-Class F1: Ensemble vs Best Single Model ===")
+print(per_class.sort_values('Support').to_string(index=False))
+
+fig, ax = plt.subplots(figsize=(12, 6))
+order = per_class.sort_values('Support').reset_index(drop=True)
+x = np.arange(len(order))
+ax.bar(x - 0.2, order[ens['best_single_model']], 0.4,
+       label=ens['best_single_model'], color='#4C72B0', alpha=0.9)
+ax.bar(x + 0.2, order['Ensemble'], 0.4, label='Ensemble', color='#55A868', alpha=0.9)
+ax.set_xticks(x)
+ax.set_xticklabels(order['Class'], rotation=35, ha='right', fontsize=9)
+ax.set_ylabel('Per-Class F1', fontsize=11)
+ax.set_title('Ensemble vs Best Single Model by Class (ordered rarest to most common)',
+             fontsize=13, fontweight='bold')
+ax.legend()
+ax.yaxis.grid(True, linestyle='--', alpha=0.5)
+ax.set_axisbelow(True)
+plt.tight_layout()
+plt.show()
+'''
+
 WORDCLOUD_MD = """### 9.1 Per-Class Vocabulary — Word Clouds
 
 Length statistics describe *how much* text each class carries; the word clouds

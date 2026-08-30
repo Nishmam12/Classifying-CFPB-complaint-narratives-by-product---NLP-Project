@@ -1,0 +1,18 @@
+{
+  "scheme": "soft",
+  "weighting": "val-F1",
+  "members": [
+    "BERT Base",
+    "Random Forest",
+    "Naive Bayes"
+  ],
+  "selected_on": "validation",
+  "val_macro_f1": 0.7795,
+  "test_accuracy": 0.8651,
+  "test_macro_f1": 0.7792,
+  "test_weighted_f1": 0.8684,
+  "best_single_model": "BERT Base",
+  "best_single_test_macro_f1": 0.7647,
+  "delta_pp": 1.45,
+  "candidates_evaluated": 1506
+}

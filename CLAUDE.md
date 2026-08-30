@@ -326,9 +326,46 @@ Regression with no mitigation at all (0.6829, 28 s).
 Naive Bayes has no class-weight arm because `MultinomialNB` exposes no
 `class_weight` parameter — stated, not silently skipped.
 
-Ensembling for the bonus was **not** attempted (out of scope for the time
-available). The LR/BERT error profiles differ qualitatively, so it remains the
-most promising bonus route if time appears.
+## Ensemble — done, bonus criterion satisfied (2026-08-30)
+
+Soft voting, validation-F1 weighted, over **BERT Base + Random Forest + Naive
+Bayes**. Selected from **1,506 candidates on validation**, then scored on test
+exactly once.
+
+| System | Test Macro F1 | Accuracy |
+|---|---|---|
+| BERT Base (best single) | 0.7647 | 0.8562 |
+| **Ensemble** | **0.7792** | **0.8651** |
+| Difference | **+1.45 pp** | +0.89 pp |
+
+Three things make this worth defending at viva:
+
+1. **It transferred.** Validation 0.7795 → test 0.7792, a gap of 0.0003 after a
+   1,506-candidate search. Selecting on test instead would have been selection
+   bias; an earlier probe that did exactly that found only +0.56 pp, because it
+   could only hard-vote saved labels rather than soft-vote probabilities.
+2. **The members are not the top three models.** Random Forest ranks 8th and
+   Naive Bayes 5th, but they disagree with BERT on **14.0%** and **13.7%** of
+   documents — more than any recurrent model (10–12%). Decorrelation beats
+   individual strength in a vote.
+3. **It is effectively free.** Both added members are the cheapest in the study,
+   so the ensemble costs **1.0 s more than BERT alone** over 303,213 documents
+   (+0.4%) for +1.45 pp. Unlike the accuracy/latency trade elsewhere in the
+   report, there is no trade-off to weigh.
+
+Gain concentrates on the rare classes: **+2.35 pp** mean over the four smallest
+versus +0.57 pp over the four largest, and **every one of the nine classes
+improves** — *Payday loan*, the rarest at 1.13%, gains the most (+3.34 pp).
+
+Produced by `pipeline/ensemble.py`; the report subsection is generated from
+`ensemble_results.json` by `pipeline/gen_tex.py` into
+`report/ensemble_section.tex`, which `acl_report.tex` `\input`s. **Do not hand-edit
+that .tex** — regenerate it.
+
+**Caveat to disclose:** the validation split has now been used three times over
+(hyperparameter tuning, epoch selection, ensemble selection). With 303,213
+validation documents the overfitting risk is small, and the clean val→test
+transfer is evidence it did not happen, but the reuse should be stated.
 
 **Deliverables:**
 - Jupyter notebook (`.ipynb`): well-organized, markdown section headers,

@@ -40,8 +40,12 @@ Base transformer. All ten models are trained under an identical
 split, which makes the resulting ranking attributable to architecture rather
 than to training-set size. BERT Base achieves the best test Macro F1 (0.7647),
 but Logistic Regression reaches 0.7367 while running roughly 1{,}300 times
-faster at inference. Our novelty contribution is a controlled study of imbalance
-handling on a corpus with a 52.9:1 majority-to-minority ratio. Across thirteen
+faster at inference. A probability-weighted ensemble of BERT, Random Forest and
+Naive Bayes---selected on validation and scored once on test---reaches
+\textbf{0.7792}, improving on BERT alone by 1.45 points for a 0.4\% increase in
+inference cost, with the gain concentrated on the rarest classes. Our novelty
+contribution is a controlled study of imbalance handling on a corpus with a
+52.9:1 majority-to-minority ratio. Across thirteen
 controlled runs we find that the standard remedy is frequently harmful: for
 Logistic Regression, Naive Bayes and Bidirectional LSTM the best strategy for
 minority-class F1 is \emph{no mitigation at all}, and inverse-frequency class
@@ -457,6 +461,9 @@ helps it separate loan products by their described terms, while making it more
 willing to assign a complaint describing collection activity to the collection
 class.
 
+% Generated from ensemble_results.json by pipeline/gen_tex.py
+\input{ensemble_section}
+
 \subsection{Imbalance Handling}
 \label{sec:novelty}
 
@@ -549,6 +556,14 @@ a fixed training budget and a common test split. BERT Base is the most accurate
 (Macro F1 0.7647) but Logistic Regression retains 96\% of that performance at
 roughly $1/1300$ of the inference cost, and every recurrent model is beaten by
 the linear baseline---evidence that this task is predominantly lexical.
+
+A validation-selected soft-voting ensemble of BERT, Random Forest and Naive
+Bayes reaches 0.7792, and its composition is instructive: the two added members
+rank eighth and fifth individually, but disagree with BERT on 14.0\% and 13.7\%
+of documents, more than any recurrent model. Decorrelation, not individual
+accuracy, earns a place in the vote. Because both are among the cheapest models
+in the study, the ensemble improves on BERT by 1.45 points for one additional
+second of inference across 303{,}213 documents.
 
 Our main contribution is negative and, we think, useful: on a corpus with a
 52.9:1 imbalance ratio, standard imbalance handling degraded minority-class F1

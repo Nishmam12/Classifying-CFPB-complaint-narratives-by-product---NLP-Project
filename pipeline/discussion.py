@@ -265,6 +265,136 @@ def build_section_14(novelty_rows):
     return "\n".join(md)
 
 
+def build_section_15(ens, test_rows, y_test, ens_preds, preds_dict, class_names):
+    """Section 15 discussion, derived from the measured ensemble result.
+
+    Branches on whether the ensemble actually beat the best single model. A
+    search over many combinations can produce a validation winner that fails to
+    transfer, and the prose has to be able to say so.
+    """
+    from sklearn.metrics import f1_score
+
+    by_model = {r["Model"]: r for r in test_rows}
+    best_name = ens["best_single_model"]
+    delta = ens["delta_pp"]
+    improved = delta > 0
+
+    md = ["### 15.1  Discussion: Does Ensembling Help, and Where?", ""]
+    md.append(
+        f"The ensemble was selected over **{ens['candidates_evaluated']} candidate "
+        f"combinations** on the validation split, and the winning configuration was "
+        f"scored on the test split once. Members: "
+        f"{', '.join('**' + m + '**' for m in ens['members'])}, combined by "
+        f"{ens['scheme']} voting with {ens['weighting']} weighting.")
+    md.append("")
+
+    verdict = "improves on" if improved else "does not improve on"
+    md.append(f"| System | Test Macro F1 |")
+    md.append("|---|---|")
+    md.append(f"| {best_name} (best single) | {ens['best_single_test_macro_f1']:.4f} |")
+    md.append(f"| Ensemble | **{ens['test_macro_f1']:.4f}** |")
+    md.append(f"| Difference | **{delta:+.2f} pp** |")
+    md.append("")
+    md.append(f"The ensemble {verdict} the strongest individual model, "
+              f"{best_name}, by {abs(delta):.2f} percentage points of Macro F1.")
+    md.append("")
+
+    # Why these members: disagreement is the mechanism
+    md.append("#### Why these members")
+    md.append("")
+    md.append(
+        "Ensembling only pays when members make *different* mistakes. Measured "
+        f"disagreement with {best_name} on the test split:")
+    md.append("")
+    md.append("| Member | Disagreement with " + best_name + " | Own Macro F1 |")
+    md.append("|---|---|---|")
+    for m in ens["members"]:
+        if m == best_name or m not in preds_dict:
+            continue
+        dis = float(np.mean(preds_dict[m] != preds_dict[best_name]))
+        md.append(f"| {m} | {dis * 100:.1f}% | {by_model[m]['Test Macro F1']:.4f} |")
+    md.append("")
+    md.append(
+        "The selected members are not simply the top-scoring models. A weaker but "
+        "*decorrelated* model contributes more to a vote than a strong model that "
+        "duplicates the leader's predictions, which is why a bag-of-words "
+        "classifier can earn a place alongside a transformer.")
+    md.append("")
+
+    # Per-class effect
+    if ens_preds is not None and best_name in preds_dict:
+        f_ens = f1_score(y_test, ens_preds, average=None,
+                         labels=list(range(len(class_names))), zero_division=0)
+        f_best = f1_score(y_test, preds_dict[best_name], average=None,
+                          labels=list(range(len(class_names))), zero_division=0)
+        supports = [(int((y_test == i).sum()), i) for i in range(len(class_names))]
+        supports.sort()
+        md.append("#### Where the gain comes from")
+        md.append("")
+        md.append(f"| Class | Support | {best_name} | Ensemble | Δ |")
+        md.append("|---|---|---|---|---|")
+        for sup, i in supports:
+            d = (f_ens[i] - f_best[i]) * 100
+            md.append(f"| {class_names[i]} | {sup:,} | {f_best[i]:.4f} | "
+                      f"{f_ens[i]:.4f} | {d:+.2f} pp |")
+        md.append("")
+        rare = [i for _, i in supports[:4]]
+        rare_delta = float(np.mean([f_ens[i] - f_best[i] for i in rare])) * 100
+        common = [i for _, i in supports[-4:]]
+        common_delta = float(np.mean([f_ens[i] - f_best[i] for i in common])) * 100
+        if rare_delta > common_delta:
+            md.append(
+                f"The gain concentrates on the **rare** classes "
+                f"({rare_delta:+.2f} pp mean across the four smallest, versus "
+                f"{common_delta:+.2f} pp across the four largest). This is the "
+                f"desirable direction: the rare classes are where single models are "
+                f"least confident, so a vote has the most to correct.")
+        else:
+            md.append(
+                f"The gain sits mainly on the **common** classes "
+                f"({common_delta:+.2f} pp mean across the four largest, versus "
+                f"{rare_delta:+.2f} pp across the four smallest). Ensembling is "
+                f"therefore not a substitute for the imbalance handling studied in "
+                f"Section 14 — it sharpens decisions the members already make well.")
+        md.append("")
+
+    # Cost
+    md.append("#### Cost")
+    md.append("")
+    infer = sum(by_model[m]["Inference Time (s)"] for m in ens["members"] if m in by_model)
+    best_infer = by_model[best_name]["Inference Time (s)"]
+    ratio = infer / max(best_infer, 1e-9)
+    overhead = infer - best_infer
+    md.append(
+        f"An ensemble pays the inference cost of **every** member: "
+        f"{infer:.1f}s across the test set versus {best_infer:.1f}s for "
+        f"{best_name} alone ({ratio:.2f}x).")
+    md.append("")
+    if improved and ratio < 1.1:
+        md.append(
+            f"Here that overhead is negligible. The two added members are the "
+            f"cheapest models in the study, so the ensemble costs **{overhead:.1f}s "
+            f"more than {best_name} alone** across 303,213 documents — a "
+            f"{(ratio - 1) * 100:.1f}% increase — for {delta:+.2f} pp of Macro F1. "
+            f"Unlike the accuracy/latency trade in Section 13, there is no real "
+            f"trade-off to weigh: the ensemble is strictly better than its "
+            f"strongest member at essentially the same cost.")
+    elif improved and delta < 1.0:
+        md.append(
+            "Whether that trade is worth making is a deployment decision rather "
+            "than a modelling one. For offline batch triage the cost is "
+            "irrelevant and the ensemble is the better system; for interactive "
+            "routing the single model is easier to justify.")
+    elif improved:
+        md.append(
+            f"The added members must be run alongside {best_name}, so deployment "
+            f"complexity rises even where wall-clock cost does not: three models "
+            f"must be versioned, loaded and kept in sync rather than one.")
+    md.append("")
+    md.append("---")
+    return "\n".join(md)
+
+
 def main():
     test_rows = load_json("test_results.json")
     novelty_rows = load_json("novelty_results.json")

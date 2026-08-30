@@ -3,84 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Sylva — Into the Living World | CFPB Multi-Class NLP Classifier</title>
-  <meta name="description" content="Sylva Living Green Hero • Restoring wild places through patient design, native planting, and a deeper kind of stewardship. Multi-class text classification of 2.02M CFPB financial complaints." />
+  <title>CFPB Financial Complaint NLP Suite | 10-Model Benchmark &amp; Ensemble</title>
+  <meta name="description" content="CFPB Financial Complaint Multi-Class NLP Classification Suite • Benchmark evaluation of 10 classical, recurrent, and transformer architectures across 2.02M consumer financial narratives." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Lexend:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
 
   <!-- =========================================================================
-       Exact <SylvaHero /> Living Green Hero Mount
+       Navigation Header
        ========================================================================= -->
-  <section class="shader-frame" id="sylva-hero-mount">
-    <iframe
-      id="sylva-frame"
-      class="sylva-hero-iframe"
-      src="/landing-pages/inner-green-3d.html"
-      title="Sylva — Into the living world"
-      sandbox="allow-downloads allow-forms allow-modals allow-popups allow-same-origin allow-scripts"
-      loading="eager"
-    ></iframe>
-  </section>
+  <header class="app-header">
+    <div class="app-container app-nav">
+      <a href="#hero" class="brand-link">
+        <div class="brand-badge-square">🏦</div>
+        <div class="brand-text">
+          <span class="brand-title">CFPB • NLP Suite</span>
+          <span class="brand-sub">CSE440 Lab Project • BRAC University</span>
+        </div>
+      </a>
 
-  <!-- =========================================================================
-       Main Application & NLP Classifier Suite
-       ========================================================================= -->
-  <div class="nlp-dashboard-wrapper">
-    <header class="app-header">
-      <div class="app-container app-nav">
-        <a href="#sylva-hero-mount" class="brand-link">
-          <div class="brand-badge-square">🌱</div>
-          <div class="brand-text">
-            <span class="brand-title">Sylva • CFPB NLP Suite</span>
-            <span class="brand-sub">CSE440 Lab Project • BRAC University</span>
+      <nav class="nav-links">
+        <a href="#playground" class="nav-link">Live Classifier</a>
+        <a href="#benchmarks" class="nav-link">Leaderboard</a>
+        <a href="#ensemble" class="nav-link">Ensemble (+2)</a>
+        <a href="#ablation" class="nav-link">Ablations</a>
+        <a href="#gallery" class="nav-link">Diagnostic Gallery</a>
+        <a href="#deliverables" class="nav-link">Deliverables</a>
+      </nav>
+
+      <span class="bonus-pill">⚡ PRO +2 BONUS</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- =========================================================================
+         Hero Section
+         ========================================================================= -->
+    <section id="hero" class="hero-section">
+      <div class="app-container">
+        <div class="hero-content">
+          <div class="hero-pill-tag">
+            <span>🔬 10-Model Empirical Benchmark Suite</span>
           </div>
-        </a>
 
-        <nav class="nav-links">
-          <a href="#playground" class="nav-link">Live Classifier</a>
-          <a href="#benchmarks" class="nav-link">10-Model Benchmarks</a>
-          <a href="#ensemble" class="nav-link">Ensemble (+2 Bonus)</a>
-          <a href="#ablation" class="nav-link">Ablations</a>
-          <a href="#gallery" class="nav-link">Error Analysis</a>
-          <a href="#report" class="nav-link">ACL Report</a>
-        </nav>
+          <h1 class="hero-title">
+            CFPB Financial Complaint <br />
+            <span class="gradient-text">Classification &amp; Research Suite</span>
+          </h1>
 
-        <span class="bonus-pill">PRO +2 BONUS</span>
+          <p class="hero-description">
+            Rigorous evaluation of classical, recurrent, and transformer architectures across <strong>2,021,420</strong> consumer financial complaints under a unified budget, featuring state-of-the-art <strong>orthogonal soft-voting ensemble fusion</strong>.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#playground" class="btn-cta-primary">
+              <span>🎮 Try Live Classifier</span>
+            </a>
+            <a href="#benchmarks" class="btn-cta-secondary">
+              <span>🏆 View Leaderboard</span>
+            </a>
+            <a href="#ensemble" class="btn-cta-secondary">
+              <span>⚡ Ensemble Model</span>
+            </a>
+            <a href="#gallery" class="btn-cta-secondary">
+              <span>📊 Diagnostic Gallery</span>
+            </a>
+          </div>
+
+          <!-- Summary KPI Row -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-label">Top Benchmark (Ensemble)</span>
+              <span class="kpi-val highlight-green">0.7720 F1</span>
+              <span class="kpi-sub">0.7647 (BERT Base) • +0.73 pp boost</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Held-Out Test Split</span>
+              <span class="kpi-val">303,213 Docs</span>
+              <span class="kpi-sub">15% Stratified held-out test split</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Corpus Size</span>
+              <span class="kpi-val">2.02M+ Narratives</span>
+              <span class="kpi-sub">CFPB Consumer Financial Complaints</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Controlled Runs</span>
+              <span class="kpi-val">43 Tuning Runs</span>
+              <span class="kpi-sub">30 Tuned + 13 Imbalance Sweeps</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </header>
+    </section>
 
-    <main class="app-container">
-
-      <!-- Summary KPI Row -->
-      <section class="kpi-grid">
-        <div class="kpi-card">
-          <span class="kpi-label">Top Benchmark (Ensemble)</span>
-          <span class="kpi-val highlight-green">0.7720 Macro F1</span>
-          <span class="kpi-sub">0.7647 (BERT Base) • +0.73 pp boost</span>
-        </div>
-        <div class="kpi-card">
-          <span class="kpi-label">Held-Out Test Split</span>
-          <span class="kpi-val">303,213 Docs</span>
-          <span class="kpi-sub">15% Stratified held-out test split</span>
-        </div>
-        <div class="kpi-card">
-          <span class="kpi-label">Corpus Size</span>
-          <span class="kpi-val">2.02M+ Narratives</span>
-          <span class="kpi-sub">CFPB Consumer Financial Complaints</span>
-        </div>
-        <div class="kpi-card">
-          <span class="kpi-label">Controlled Experiments</span>
-          <span class="kpi-val">43 Tuning Runs</span>
-          <span class="kpi-sub">30 Tuned + 13 Imbalance Sweeps</span>
-        </div>
-      </section>
-
-      <!-- Live Classifier Playground -->
-      <section id="playground" class="app-section">
+    <!-- =========================================================================
+         Interactive Live Classifier Playground
+         ========================================================================= -->
+    <section id="playground" class="app-section">
+      <div class="app-container">
         <div class="section-heading">
           <span class="section-tag">Interactive NLP Console</span>
           <h2>Real-Time Complaint Classifier</h2>
@@ -91,16 +115,19 @@
           <!-- Input Card -->
           <div class="panel-card">
             <div class="panel-header">
-              <h3>Input Narrative</h3>
+              <h3>📝 Input Narrative</h3>
               <button id="btn-random" class="chip-btn">🎲 Random Sample</button>
             </div>
 
             <div class="presets-row">
-              <span class="presets-title">Category Presets:</span>
+              <span class="presets-title">Product Presets:</span>
               <div id="preset-pills-container" class="presets-wrap"></div>
             </div>
 
-            <textarea id="complaint-text" class="narrative-textarea" placeholder="Type or paste a consumer complaint narrative here..."></textarea>
+            <div class="textarea-wrapper">
+              <textarea id="complaint-text" class="narrative-textarea" placeholder="Type or paste a consumer complaint narrative here..."></textarea>
+              <div id="textarea-counter" class="textarea-meta">0 words • 0 chars</div>
+            </div>
 
             <div class="controls-bar">
               <select id="model-select" class="model-dropdown">
@@ -110,10 +137,11 @@
                 <option value="gru">🧠 GRU Gated Recurrent Net — 0.7274 Macro F1</option>
                 <option value="bilstm">🔁 Bidirectional LSTM — 0.7173 Macro F1</option>
                 <option value="nb">⚡ Naive Bayes Multinomial — 0.7211 Macro F1</option>
+                <option value="rf">🌲 Random Forest (Balanced) — 0.6920 Macro F1</option>
               </select>
 
               <div class="buttons-group">
-                <button id="btn-clear" class="chip-btn" style="padding:10px 16px;">Clear</button>
+                <button id="btn-clear" class="chip-btn" style="padding:11px 16px;">Clear</button>
                 <button id="btn-classify" class="btn-primary-action">Classify Complaint</button>
               </div>
             </div>
@@ -122,30 +150,42 @@
           <!-- Output Card -->
           <div class="panel-card">
             <div class="panel-header">
-              <h3>Prediction &amp; Probability Breakdown</h3>
+              <h3>📊 Prediction &amp; Probabilities</h3>
               <span class="chip-btn">9 Classes</span>
             </div>
 
-            <div id="results-container">
-              <!-- Rendered dynamically by app.js -->
+            <div id="results-container" class="results-wrapper">
+              <!-- Populated dynamically by app.js -->
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- 10-Model Benchmark Leaderboard -->
-      <section id="benchmarks" class="app-section">
+    <!-- =========================================================================
+         10-Model Benchmark Leaderboard
+         ========================================================================= -->
+    <section id="benchmarks" class="app-section">
+      <div class="app-container">
         <div class="section-heading">
           <span class="section-tag">Empirical Results</span>
           <h2>10-Model Benchmark Leaderboard</h2>
           <p>Trained under a shared 200k document budget and evaluated on 303,213 held-out test documents.</p>
         </div>
 
+        <div class="filter-tabs" id="leaderboard-filters">
+          <button class="filter-tab-btn active" data-filter="all">All Architectures (11)</button>
+          <button class="filter-tab-btn" data-filter="Ensemble">⚡ Ensemble (1)</button>
+          <button class="filter-tab-btn" data-filter="Transformer">🤖 Transformer (1)</button>
+          <button class="filter-tab-btn" data-filter="Classical ML">📊 Classical ML (3)</button>
+          <button class="filter-tab-btn" data-filter="Recurrent Net">🧠 Recurrent Nets (6)</button>
+        </div>
+
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Model Architecture</th>
+                <th>Rank &amp; Model Architecture</th>
                 <th>Paradigm</th>
                 <th>Macro F1</th>
                 <th>Accuracy</th>
@@ -159,51 +199,92 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Ensemble Innovation (+2 Bonus) -->
-      <section id="ensemble" class="app-section">
+    <!-- =========================================================================
+         Ensemble Innovation (+2 Bonus)
+         ========================================================================= -->
+    <section id="ensemble" class="app-section">
+      <div class="app-container">
         <div class="section-heading">
-          <span class="section-tag" style="color:#f59e0b;">Bonus Requirement #3</span>
+          <span class="section-tag" style="color:var(--amber-gold);">Bonus Requirement #3</span>
           <h2>Ensemble Model: Orthogonal Fusion (+2 Bonus)</h2>
-          <p>Soft-voting blend (0.75 BERT + 0.25 LR) outperforms every standalone architecture by correcting non-overlapping errors.</p>
+          <p>Soft-voting blend (0.75 BERT + 0.25 LR) outperforms every standalone architecture by combining orthogonal error profiles.</p>
         </div>
 
-        <div class="cards-triplet">
-          <div class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h4>Low Error Correlation (r = 0.38)</h4>
-            <p>BERT excels at long-range contextual syntax while Logistic Regression operates on high-dimensional exact n-gram surface tokens.</p>
+        <!-- Interactive Blend Weight Simulator -->
+        <div class="ensemble-interactive-card">
+          <div class="simulator-header">
+            <div>
+              <h3 style="font-family:var(--font-heading); font-size:1.2rem; color:var(--text-pure);">⚡ Interactive Blend Weight Simulator</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+                Formula: <code>P(c) = w · P<sub>BERT</sub>(c) + (1 - w) · P<sub>LR</sub>(c)</code>. Adjust the blend ratio to evaluate live prediction calibration.
+              </p>
+            </div>
+            <div id="blend-badge" class="bonus-pill" style="font-size:0.85rem;">
+              Current Blend: 75% BERT + 25% LR
+            </div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">⚖️</div>
-            <h4>Soft-Voting Calibration</h4>
-            <p>Weighted blend: <code>P(c) = 0.75 * P_BERT(c) + 0.25 * P_LR(c)</code>. Smooths decision boundaries on rare categories without precision collapse.</p>
+          <div class="slider-container">
+            <div class="slider-labels">
+              <span style="color:var(--blue-accent);">📊 100% Logistic Regression (w = 0.0)</span>
+              <span style="color:var(--emerald-green); font-weight:700;">⚡ Optimal 75/25 Blend</span>
+              <span style="color:var(--purple-accent);">🤖 100% BERT Base (w = 1.0)</span>
+            </div>
+            <input type="range" id="blend-slider" class="blend-slider" min="0" max="100" value="75" step="5" />
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">🏆</div>
-            <h4>0.7720 Top Benchmark (+0.73 pp)</h4>
-            <p>Achieves <strong>0.7720 Macro F1</strong> and <strong>86.24% Test Accuracy</strong>, setting the highest performance benchmark in the section.</p>
+          <div class="cards-triplet">
+            <div class="feature-card">
+              <div class="feature-icon">⚡</div>
+              <h4>Low Error Correlation (r = 0.38)</h4>
+              <p>BERT excels at long-range contextual syntax while Logistic Regression operates on high-dimensional exact n-gram surface tokens.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">⚖️</div>
+              <h4>Soft-Voting Calibration</h4>
+              <p>Weighted probability averaging smooths decision boundaries on rare categories without precision collapse.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">🏆</div>
+              <h4>0.7720 Top Benchmark (+0.73 pp)</h4>
+              <p>Achieves <strong>0.7720 Macro F1</strong> and <strong>86.24% Test Accuracy</strong> on 303k held-out test documents.</p>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Ablation Studies Matrix -->
-      <section id="ablation" class="app-section">
+    <!-- =========================================================================
+         13-Run Imbalance Strategy Matrix (Ablations)
+         ========================================================================= -->
+    <section id="ablation" class="app-section">
+      <div class="app-container">
         <div class="section-heading">
-          <span class="section-tag" style="color:#06b6d4;">Bonus Requirement #4</span>
+          <span class="section-tag" style="color:var(--cyan-sky);">Bonus Requirement #4</span>
           <h2>13-Run Imbalance Strategy Matrix</h2>
           <p>Controlled study of Natural Prior vs Class Weighting vs SMOTE vs Focal Loss across 5 distinct paradigms.</p>
+        </div>
+
+        <div class="filter-tabs" id="novelty-filters">
+          <button class="filter-tab-btn active" data-filter="all">All Models (11 Runs)</button>
+          <button class="filter-tab-btn" data-filter="Logistic Regression">Logistic Regression (3)</button>
+          <button class="filter-tab-btn" data-filter="Bidirectional LSTM">Bidirectional LSTM (3)</button>
+          <button class="filter-tab-btn" data-filter="Random Forest">Random Forest (3)</button>
+          <button class="filter-tab-btn" data-filter="BERT Base">BERT Base (2)</button>
         </div>
 
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Model</th>
-                <th>Strategy</th>
+                <th>Model Architecture</th>
+                <th>Paradigm</th>
+                <th>Imbalance Strategy</th>
                 <th>Macro F1</th>
                 <th>Accuracy</th>
                 <th>Minority-4 F1</th>
@@ -215,84 +296,107 @@
             </tbody>
           </table>
         </div>
-      </section>
 
-      <!-- Error Analysis & Visual Gallery -->
-      <section id="gallery" class="app-section">
+        <div class="callout-box">
+          <div class="callout-icon">💡</div>
+          <div class="callout-text">
+            <h5>Core Empirical Finding: Rejection of the Architecture-Dependence Hypothesis</h5>
+            <p>
+              Natural Prior (untreated) achieves the highest Minority-4 F1 for both <strong>Logistic Regression (0.6829)</strong> and <strong>Bi-LSTM (0.6718)</strong>. 
+              Class weighting penalizes deep neural networks (-7.9 pp on Bi-LSTM) by triggering false positives, while <strong>Random Forest is the only architecture rescued (+24.3 pp)</strong> by mitigating tree split skew.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         Visual Diagnostic Gallery & Lightbox
+         ========================================================================= -->
+    <section id="gallery" class="app-section">
+      <div class="app-container">
         <div class="section-heading">
           <span class="section-tag">Error Dynamics &amp; Diagnostics</span>
-          <h2>Visual Diagnostic Gallery</h2>
-          <p>Primary confusion: <strong>Money Transfer &rarr; Bank Account (14–17%)</strong>, driven by shared vocabulary (<em>bank, account, deposit, funds</em>).</p>
+          <h2>Visual Diagnostic Gallery (10 Figures)</h2>
+          <p>Click any figure to inspect high-resolution confusion matrices, word clouds, Pareto frontiers, and distribution plots.</p>
         </div>
 
-        <div class="gallery-grid">
-          <div class="gallery-item">
-            <img src="/figures/confusion_matrices.png" alt="Confusion Matrices" loading="lazy" />
-            <p><strong>Figure 1: Normalized Confusion Matrices.</strong> High diagonal dominance in BERT Base with rare off-diagonal dispersion.</p>
-          </div>
-
-          <div class="gallery-item">
-            <img src="/figures/wordclouds.png" alt="Word Clouds" loading="lazy" />
-            <p><strong>Figure 2: Salient Vocabulary Distribution.</strong> Lexical overlap between Bank Account and Money Transfer.</p>
-          </div>
-
-          <div class="gallery-item">
-            <img src="/figures/model_comparison.png" alt="Accuracy vs Latency" loading="lazy" />
-            <p><strong>Figure 3: Pareto Frontier.</strong> Logistic Regression yields 96% of BERT's F1 at 1,300x lower latency.</p>
-          </div>
-
-          <div class="gallery-item">
-            <img src="/figures/imbalance_comparison.png" alt="Imbalance Delta" loading="lazy" />
-            <p><strong>Figure 4: Imbalance Strategy Delta.</strong> Class weighting damages deep neural networks (-7.9 pp) while rescuing tree ensembles (+24.3 pp).</p>
-          </div>
+        <div class="gallery-grid" id="gallery-grid-container">
+          <!-- Populated dynamically by app.js -->
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- Report & Deliverables -->
-      <section id="report" class="app-section">
+    <!-- =========================================================================
+         Deliverables & Research Section
+         ========================================================================= -->
+    <section id="deliverables" class="app-section">
+      <div class="app-container">
         <div class="section-heading">
           <span class="section-tag">Academic Deliverables</span>
           <h2>ACL Research Paper &amp; Deliverables</h2>
-          <p>Formatted in ACL two-column LaTeX style with 24 cited references, reproducible pipeline, and model weights.</p>
+          <p>Formatted in ACL two-column LaTeX style with 24 cited references, reproducible pipeline, and trained model weights.</p>
         </div>
 
         <div class="cards-triplet">
           <div class="feature-card" style="text-align:center;">
+            <div class="feature-icon">📄</div>
             <h4>ACL LaTeX Paper</h4>
-            <div style="font-family:var(--font-mono); font-size:11px; color:#10b981; margin:8px 0;">report/acl_report.tex</div>
-            <p>8-page formal paper with 24 cited references and complete methodology.</p>
+            <div style="font-family:var(--font-mono); font-size:12px; color:var(--emerald-green); margin:8px 0;">report/acl_report.tex</div>
+            <p>8-page formal research paper with 24 cited references, methodology, error analysis, and formal novelty discussion.</p>
           </div>
 
           <div class="feature-card" style="text-align:center;">
+            <div class="feature-icon">⚙️</div>
             <h4>Staged Pipeline</h4>
-            <div style="font-family:var(--font-mono); font-size:11px; color:#f59e0b; margin:8px 0;">pipeline/ &amp; _cache/</div>
-            <p>Modular Python experiment stages with deterministic stratified splits.</p>
+            <div style="font-family:var(--font-mono); font-size:12px; color:var(--amber-gold); margin:8px 0;">pipeline/ &amp; _cache/</div>
+            <p>6-stage resumable Python pipeline (setup, classical, recurrent, bert, evaluate, novelty) with deterministic splits.</p>
           </div>
 
           <div class="feature-card" style="text-align:center;">
+            <div class="feature-icon">🤖</div>
             <h4>Model Weights</h4>
-            <div style="font-family:var(--font-mono); font-size:11px; color:#6366f1; margin:8px 0;">best_bert_model/</div>
-            <p>PyTorch safetensors weights &amp; Hugging Face tokenizer configuration.</p>
+            <div style="font-family:var(--font-mono); font-size:12px; color:var(--purple-accent); margin:8px 0;">best_bert_model/</div>
+            <p>PyTorch safetensors weights &amp; Hugging Face tokenizer configuration for the winning BERT Base classifier.</p>
           </div>
-        </div>
-      </section>
-
-    </main>
-
-    <footer class="app-footer">
-      <div class="app-container">
-        <p><strong>CSE440 (Natural Language Processing II)</strong> • BRAC University</p>
-        <p style="margin-top:4px;">Instructor: Dr. Farig Sadeque • CFPB Complaint Narrative Classification</p>
-        <div class="footer-links">
-          <a href="#sylva-hero-mount">Sylva Hero</a>
-          <a href="#playground">Live Classifier</a>
-          <a href="#benchmarks">Leaderboard</a>
-          <a href="#ensemble">Ensemble Innovation</a>
-          <a href="#report">ACL Paper</a>
         </div>
       </div>
-    </footer>
+    </section>
+  </main>
+
+  <!-- =========================================================================
+       Lightbox Modal
+       ========================================================================= -->
+  <div id="lightbox-modal" class="lightbox-modal" role="dialog" aria-modal="true">
+    <div class="lightbox-content">
+      <button id="lightbox-close-btn" class="lightbox-close" aria-label="Close modal">&times;</button>
+      <div class="lightbox-image-holder">
+        <img id="lightbox-img" src="" alt="Figure preview" />
+      </div>
+      <div class="lightbox-details">
+        <h3 id="lightbox-title">Figure Title</h3>
+        <p id="lightbox-desc">Figure description</p>
+      </div>
+    </div>
   </div>
+
+  <!-- =========================================================================
+       Footer
+       ========================================================================= -->
+  <footer class="app-footer">
+    <div class="app-container">
+      <p><strong>CSE440 (Natural Language Processing II)</strong> • BRAC University</p>
+      <p style="margin-top:4px;">Instructor: Dr. Farig Sadeque • CFPB Multi-Class Complaint Classification</p>
+      <div class="footer-links">
+        <a href="#hero">Back to Top</a>
+        <a href="#playground">Live Classifier</a>
+        <a href="#benchmarks">Leaderboard</a>
+        <a href="#ensemble">Ensemble Model</a>
+        <a href="#ablation">Ablations</a>
+        <a href="#gallery">Diagnostic Gallery</a>
+      </div>
+    </div>
+  </footer>
 
   <script type="module" src="/src/app.js"></script>
 </body>

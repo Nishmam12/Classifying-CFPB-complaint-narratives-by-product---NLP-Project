@@ -1,75 +1,85 @@
-import { CLASSES_META, BENCHMARK_MODELS, NOVELTY_EXPERIMENTS, SAMPLE_COMPLAINTS } from './data.js';
+import { CLASSES_META, BENCHMARK_MODELS, NOVELTY_EXPERIMENTS, SAMPLE_COMPLAINTS, GALLERY_FIGURES } from './data.js';
 import { classifyComplaint } from './classifier.js';
+
+let currentSampleIndex = 0;
+let currentLeaderboardFilter = 'all';
+let currentNoveltyFilter = 'all';
+let currentBertWeight = 0.75;
 
 document.addEventListener('DOMContentLoaded', () => {
   renderPresetPills();
   renderLeaderboard();
   renderNoveltyExperiments();
+  renderGallery();
   bindClassifierControls();
-  bindSylvaFrameInteraction();
+  bindEnsembleSlider();
+  bindFilterTabs();
+  bindLightbox();
+  bindTextareaCounter();
+  bindScrollSpy();
 
   // Load initial demo complaint
   loadSample(0);
 });
 
-function bindSylvaFrameInteraction() {
-  const iframe = document.getElementById('sylva-frame');
-  if (!iframe) return;
-
-  iframe.addEventListener('load', () => {
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!doc) return;
-
-      // When "Explore the work" or "Enter" is clicked inside the Sylva Hero, scroll down
-      const exploreBtn = doc.querySelector('.liquid-button--explore');
-      const enterLink = doc.querySelector('.dock-item--enter');
-      const scrollCue = doc.querySelector('.scroll');
-
-      const scrollToDashboard = (e) => {
-        if (e) e.preventDefault();
-        const target = document.getElementById('playground');
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth' });
-        }
-      };
-
-      if (exploreBtn) exploreBtn.addEventListener('click', scrollToDashboard);
-      if (enterLink) enterLink.addEventListener('click', scrollToDashboard);
-      if (scrollCue) scrollCue.addEventListener('click', scrollToDashboard);
-    } catch (err) {
-      console.warn("Cross-origin frame boundary check:", err);
-    }
-  });
-}
-
+/* =========================================================================
+   Preset Buttons
+   ========================================================================= */
 function renderPresetPills() {
   const container = document.getElementById('preset-pills-container');
   if (!container) return;
 
   container.innerHTML = SAMPLE_COMPLAINTS.map((sample, idx) => `
-    <button class="chip-btn" data-index="${idx}">
-      ${sample.label.split('/')[0].trim()}
+    <button class="chip-btn ${idx === currentSampleIndex ? 'active' : ''}" data-index="${idx}">
+      ${CLASSES_META[sample.classId]?.icon || '📄'} ${sample.label.split('/')[0].trim()}
     </button>
   `).join('');
 
   container.querySelectorAll('.chip-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const idx = parseInt(e.target.getAttribute('data-index'), 10);
+      const target = e.currentTarget;
+      const idx = parseInt(target.getAttribute('data-index'), 10);
+      container.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+      target.classList.add('active');
       loadSample(idx);
     });
   });
 }
 
 function loadSample(idx) {
+  currentSampleIndex = idx;
   const sample = SAMPLE_COMPLAINTS[idx];
   if (!sample) return;
 
   const textarea = document.getElementById('complaint-text');
   if (textarea) {
     textarea.value = sample.text;
+    updateTextareaCounter(sample.text);
     runInference();
   }
+}
+
+/* =========================================================================
+   Textarea Counter & Input Controls
+   ========================================================================= */
+function bindTextareaCounter() {
+  const textarea = document.getElementById('complaint-text');
+  if (!textarea) return;
+
+  textarea.addEventListener('input', () => {
+    updateTextareaCounter(textarea.value);
+  });
+}
+
+function updateTextareaCounter(text) {
+  const counter = document.getElementById('textarea-counter');
+  if (!counter) return;
+
+  const trimmed = text.trim();
+  const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
+  const charCount = text.length;
+
+  counter.textContent = `${wordCount} words • ${charCount} chars`;
 }
 
 function bindClassifierControls() {
@@ -85,14 +95,26 @@ function bindClassifierControls() {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       const textarea = document.getElementById('complaint-text');
-      textarea.value = '';
-      textarea.focus();
+      if (textarea) {
+        textarea.value = '';
+        updateTextareaCounter('');
+        textarea.focus();
+      }
+      const presetPills = document.querySelectorAll('#preset-pills-container .chip-btn');
+      presetPills.forEach(p => p.classList.remove('active'));
     });
   }
 
   if (randomBtn) {
     randomBtn.addEventListener('click', () => {
-      const randIdx = Math.floor(Math.random() * SAMPLE_COMPLAINTS.length);
+      let randIdx = Math.floor(Math.random() * SAMPLE_COMPLAINTS.length);
+      if (randIdx === currentSampleIndex) {
+        randIdx = (randIdx + 1) % SAMPLE_COMPLAINTS.length;
+      }
+      const presetPills = document.querySelectorAll('#preset-pills-container .chip-btn');
+      presetPills.forEach(p => p.classList.remove('active'));
+      const activePill = document.querySelector(`#preset-pills-container .chip-btn[data-index="${randIdx}"]`);
+      if (activePill) activePill.classList.add('active');
       loadSample(randIdx);
     });
   }
@@ -102,6 +124,9 @@ function bindClassifierControls() {
   }
 }
 
+/* =========================================================================
+   Inference Execution & Result Rendering
+   ========================================================================= */
 async function runInference() {
   const textarea = document.getElementById('complaint-text');
   const text = textarea ? textarea.value.trim() : '';
@@ -117,7 +142,7 @@ async function runInference() {
   }
 
   try {
-    const result = await classifyComplaint(text, modelType);
+    const result = await classifyComplaint(text, modelType, { bertWeight: currentBertWeight });
     renderResults(result);
   } catch (err) {
     console.error("Classification error:", err);
@@ -136,19 +161,21 @@ function renderResults(result) {
   const { topClass, allDistributions, modelName, latencyMs, tokenHighlights } = result;
 
   container.innerHTML = `
-    <div style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+    <div class="results-wrapper">
       <!-- Winner Card -->
-      <div class="winner-box" style="border-color:${topClass.color}45; background:${topClass.color}12;">
+      <div class="winner-box" style="border-color:${topClass.color}50; background:${topClass.color}15;">
         <div>
-          <span class="winner-subtitle" style="color:${topClass.color};">Top-1 Prediction</span>
+          <span class="winner-subtitle" style="color:${topClass.color};">
+            <span>${topClass.icon || '🏆'}</span> Top-1 Predicted Product
+          </span>
           <h4 class="winner-class-name">${topClass.className}</h4>
-          <span style="font-size:0.78rem; color:var(--text-muted);">
+          <span style="font-size:0.8rem; color:var(--text-muted);">
             Architecture: <strong style="color:var(--text-pure);">${modelName}</strong> • Latency: <strong style="font-family:var(--font-mono); color:var(--emerald-green);">${latencyMs} ms</strong>
           </span>
         </div>
         <div>
           <div class="winner-confidence" style="color:${topClass.color};">${topClass.percentage}%</div>
-          <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-dim); text-transform:uppercase;">Confidence</span>
+          <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-dim); text-transform:uppercase; display:block; text-align:right;">Confidence</span>
         </div>
       </div>
 
@@ -157,7 +184,9 @@ function renderResults(result) {
         ${allDistributions.map(item => `
           <div class="dist-bar-item">
             <div class="dist-labels">
-              <span>${item.className}</span>
+              <span class="dist-class-name">
+                <span>${item.icon || '•'}</span> ${item.className}
+              </span>
               <span style="font-family:var(--font-mono); font-weight:600; color:var(--text-pure);">${item.percentage}%</span>
             </div>
             <div class="dist-track">
@@ -167,7 +196,7 @@ function renderResults(result) {
         `).join('')}
       </div>
 
-      <!-- Lexical Attention Signals -->
+      <!-- Key Attention Tokens -->
       ${tokenHighlights && tokenHighlights.length > 0 ? `
         <div class="tokens-container">
           <div class="tokens-header">Key Lexical Signals &amp; Attention Tokens:</div>
@@ -180,15 +209,25 @@ function renderResults(result) {
   `;
 }
 
+/* =========================================================================
+   Leaderboard Rendering & Filtering
+   ========================================================================= */
 function renderLeaderboard() {
   const tbody = document.getElementById('leaderboard-tbody');
   if (!tbody) return;
 
-  tbody.innerHTML = BENCHMARK_MODELS.map((m, idx) => {
+  const filtered = currentLeaderboardFilter === 'all'
+    ? BENCHMARK_MODELS
+    : BENCHMARK_MODELS.filter(m => m.paradigm.toLowerCase() === currentLeaderboardFilter.toLowerCase());
+
+  tbody.innerHTML = filtered.map((m, idx) => {
     let rankBadge = `<span class="rank-circle">${idx + 1}</span>`;
-    if (idx === 0) rankBadge = `<span class="rank-circle rank-1">1</span>`;
-    else if (idx === 1) rankBadge = `<span class="rank-circle rank-2">2</span>`;
+    if (m.isEnsemble) rankBadge = `<span class="rank-circle rank-1">1</span>`;
+    else if (m.isBestSingle) rankBadge = `<span class="rank-circle rank-2">2</span>`;
     else if (idx === 2) rankBadge = `<span class="rank-circle rank-3">3</span>`;
+
+    const f1Pct = (m.macroF1 * 100).toFixed(1);
+    const accPct = (m.accuracy * 100).toFixed(1);
 
     return `
       <tr class="${m.isEnsemble ? 'highlight-top' : ''}">
@@ -196,37 +235,229 @@ function renderLeaderboard() {
           <div style="display:flex; align-items:center;">
             ${rankBadge}
             <div>
-              <div style="font-weight:600; color:var(--text-pure); display:flex; align-items:center; gap:6px;">
+              <div style="font-weight:700; color:var(--text-pure); display:flex; align-items:center; gap:6px;">
                 ${m.name}
-                ${m.isEnsemble ? '<span class="bonus-pill" style="padding:2px 6px; font-size:0.7rem;">PRO +2</span>' : ''}
+                ${m.isEnsemble ? '<span class="bonus-pill" style="padding:2px 8px; font-size:0.7rem;">PRO +2</span>' : ''}
               </div>
               <small style="font-size:0.75rem; color:var(--text-dim);">${m.config}</small>
             </div>
           </div>
         </td>
-        <td><span style="font-size:0.78rem; padding:3px 8px; border-radius:var(--radius-pill); background:rgba(255,255,255,0.05); color:var(--text-muted);">${m.paradigm}</span></td>
-        <td><strong style="font-family:var(--font-mono); color:var(--emerald-green);">${m.macroF1.toFixed(4)}</strong></td>
-        <td>${(m.accuracy * 100).toFixed(2)}%</td>
-        <td>${(m.weightedF1 * 100).toFixed(2)}%</td>
-        <td><span style="font-family:var(--font-mono); font-size:0.8rem;">${m.trainTime}</span></td>
-        <td><span style="font-family:var(--font-mono); font-size:0.8rem;">${m.inferTime}</span></td>
+        <td>
+          <span style="font-size:0.78rem; padding:4px 10px; border-radius:var(--radius-pill); background:rgba(255,255,255,0.06); color:var(--text-muted); font-weight:500;">
+            ${m.paradigm}
+          </span>
+        </td>
+        <td>
+          <div class="metric-bar-cell">
+            <strong style="font-family:var(--font-mono); color:var(--emerald-green); font-size:0.95rem;">${m.macroF1.toFixed(4)}</strong>
+            <div class="metric-bar-track">
+              <div class="metric-bar-fill" style="width:${f1Pct}%; background:var(--emerald-green);"></div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="metric-bar-cell">
+            <span style="font-family:var(--font-mono); color:var(--text-pure); font-size:0.88rem;">${(m.accuracy * 100).toFixed(2)}%</span>
+            <div class="metric-bar-track">
+              <div class="metric-bar-fill" style="width:${accPct}%; background:var(--blue-accent);"></div>
+            </div>
+          </div>
+        </td>
+        <td><span style="font-family:var(--font-mono); font-size:0.88rem;">${(m.weightedF1 * 100).toFixed(2)}%</span></td>
+        <td><span style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-dim);">${m.trainTime}</span></td>
+        <td><span style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-dim);">${m.inferTime}</span></td>
       </tr>
     `;
   }).join('');
 }
 
+/* =========================================================================
+   Ablation Studies Rendering & Filtering
+   ========================================================================= */
 function renderNoveltyExperiments() {
   const tbody = document.getElementById('novelty-tbody');
   if (!tbody) return;
 
-  tbody.innerHTML = NOVELTY_EXPERIMENTS.map(row => `
+  const filtered = currentNoveltyFilter === 'all'
+    ? NOVELTY_EXPERIMENTS
+    : NOVELTY_EXPERIMENTS.filter(r => r.model.toLowerCase() === currentNoveltyFilter.toLowerCase());
+
+  tbody.innerHTML = filtered.map(row => `
     <tr>
-      <td><strong style="color:var(--text-pure);">${row.model}</strong></td>
-      <td><span style="font-size:0.78rem; padding:3px 8px; border-radius:var(--radius-pill); background:rgba(255,255,255,0.05); color:var(--text-muted);">${row.strategy}</span></td>
+      <td><strong style="color:var(--text-pure); font-weight:700;">${row.model}</strong></td>
+      <td>
+        <span style="font-size:0.78rem; padding:3px 8px; border-radius:var(--radius-pill); background:rgba(255,255,255,0.05); color:var(--text-muted);">
+          ${row.paradigm}
+        </span>
+      </td>
+      <td>
+        <span style="font-size:0.85rem; font-weight:600; color:var(--text-pure);">
+          ${row.strategy}
+        </span>
+      </td>
       <td><strong style="font-family:var(--font-mono); color:var(--amber-gold);">${row.macroF1.toFixed(4)}</strong></td>
-      <td>${(row.acc * 100).toFixed(2)}%</td>
-      <td><span style="font-family:var(--font-mono); font-size:0.8rem;">${row.min4F1.toFixed(4)}</span></td>
-      <td><span style="font-size:0.85rem; color:var(--text-muted);">${row.finding}</span></td>
+      <td><span style="font-family:var(--font-mono); font-size:0.88rem;">${(row.acc * 100).toFixed(2)}%</span></td>
+      <td><span style="font-family:var(--font-mono); font-size:0.88rem; font-weight:600; color:var(--emerald-green);">${row.min4F1.toFixed(4)}</span></td>
+      <td><span style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">${row.finding}</span></td>
     </tr>
   `).join('');
+}
+
+/* =========================================================================
+   Visual Diagnostic Gallery & Lightbox Modal
+   ========================================================================= */
+function renderGallery() {
+  const container = document.getElementById('gallery-grid-container');
+  if (!container) return;
+
+  container.innerHTML = GALLERY_FIGURES.map((fig, idx) => `
+    <div class="gallery-item" data-index="${idx}">
+      <div class="gallery-img-wrapper">
+        <img src="${fig.src}" alt="${fig.title}" loading="lazy" />
+        <div class="gallery-zoom-overlay">
+          <span class="zoom-badge">🔍 Click to Expand</span>
+        </div>
+      </div>
+      <div class="gallery-meta">
+        <span class="gallery-meta-tag">${fig.category}</span>
+        <h4 class="gallery-meta-title">${fig.title}</h4>
+        <p class="gallery-meta-desc">${fig.description}</p>
+      </div>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+      openLightbox(idx);
+    });
+  });
+}
+
+function bindLightbox() {
+  const modal = document.getElementById('lightbox-modal');
+  const closeBtn = document.getElementById('lightbox-close-btn');
+
+  if (!modal) return;
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => closeLightbox());
+  }
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeLightbox();
+    }
+  });
+}
+
+function openLightbox(idx) {
+  const fig = GALLERY_FIGURES[idx];
+  if (!fig) return;
+
+  const modal = document.getElementById('lightbox-modal');
+  const img = document.getElementById('lightbox-img');
+  const title = document.getElementById('lightbox-title');
+  const desc = document.getElementById('lightbox-desc');
+
+  if (modal && img && title && desc) {
+    img.src = fig.src;
+    img.alt = fig.title;
+    title.textContent = fig.title;
+    desc.textContent = fig.description;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeLightbox() {
+  const modal = document.getElementById('lightbox-modal');
+  if (modal) {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+/* =========================================================================
+   Ensemble Blend Slider
+   ========================================================================= */
+function bindEnsembleSlider() {
+  const slider = document.getElementById('blend-slider');
+  const badge = document.getElementById('blend-badge');
+
+  if (!slider) return;
+
+  slider.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value, 10);
+    currentBertWeight = val / 100;
+    const lrWeight = 100 - val;
+
+    if (badge) {
+      badge.textContent = `Current Blend: ${val}% BERT + ${lrWeight}% LR`;
+    }
+
+    const modelSelect = document.getElementById('model-select');
+    if (modelSelect && modelSelect.value === 'ensemble') {
+      runInference();
+    }
+  });
+}
+
+/* =========================================================================
+   Filter Tabs
+   ========================================================================= */
+function bindFilterTabs() {
+  // Leaderboard filters
+  const lbFilters = document.querySelectorAll('#leaderboard-filters .filter-tab-btn');
+  lbFilters.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      lbFilters.forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      currentLeaderboardFilter = e.currentTarget.getAttribute('data-filter');
+      renderLeaderboard();
+    });
+  });
+
+  // Novelty / Ablation filters
+  const noveltyFilters = document.querySelectorAll('#novelty-filters .filter-tab-btn');
+  noveltyFilters.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      noveltyFilters.forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      currentNoveltyFilter = e.currentTarget.getAttribute('data-filter');
+      renderNoveltyExperiments();
+    });
+  });
+}
+
+/* =========================================================================
+   Scroll Spy for Active Navigation
+   ========================================================================= */
+function bindScrollSpy() {
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop - 120;
+      if (window.scrollY >= sectionTop) {
+        current = section.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('active');
+      }
+    });
+  });
 }

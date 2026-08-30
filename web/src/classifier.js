@@ -4,64 +4,68 @@ import { CLASSES_META } from './data.js';
 const VOCAB_WEIGHTS = {
   // Class 0: Bank account or service
   0: {
-    "checking": 4.2, "savings": 4.0, "overdraft": 5.5, "deposit": 4.1, "nsf": 4.8, "atm": 3.9, 
-    "branch": 3.5, "teller": 3.8, "fee": 2.8, "fees": 2.6, "funds": 3.0, "direct deposit": 4.5,
-    "hold": 3.2, "bank": 2.9, "chase": 2.1, "wells fargo": 2.4, "citibank": 2.2, "bofa": 2.3
+    "checking": 4.5, "savings": 4.2, "overdraft": 5.8, "deposit": 4.3, "nsf": 5.0, "atm": 4.0, 
+    "branch": 3.6, "teller": 4.0, "fee": 3.0, "fees": 2.8, "funds": 3.2, "direct deposit": 4.8,
+    "hold": 3.4, "bank": 3.0, "chase": 2.2, "wells fargo": 2.5, "citibank": 2.3, "bofa": 2.4,
+    "unauthorized fee": 4.6, "checking account": 5.4, "savings account": 5.2, "bank account": 5.5
   },
   // Class 1: Credit card / prepaid card
   1: {
-    "card": 4.5, "credit card": 5.2, "charge": 3.8, "merchant": 4.2, "annual fee": 4.9, 
-    "rewards": 4.6, "cash advance": 4.3, "prepaid": 5.0, "statement": 3.2, "billing": 3.5,
-    "visa": 3.8, "mastercard": 3.7, "amex": 4.1, "american express": 4.2, "credit limit": 4.4,
-    "interest rate": 2.9, "apr": 2.8, "cardholder": 4.0
+    "card": 4.6, "credit card": 5.5, "charge": 3.9, "merchant": 4.4, "annual fee": 5.1, 
+    "rewards": 4.8, "cash advance": 4.5, "prepaid": 5.2, "statement": 3.4, "billing": 3.7,
+    "visa": 4.0, "mastercard": 3.9, "amex": 4.3, "american express": 4.4, "credit limit": 4.7,
+    "interest rate": 3.1, "apr": 3.0, "cardholder": 4.2, "prepaid card": 5.6, "billing dispute": 4.8
   },
   // Class 2: Credit reporting
   2: {
-    "equifax": 5.5, "experian": 5.5, "transunion": 5.5, "credit report": 5.8, "bureau": 4.8, 
-    "dispute": 4.0, "inaccurate": 4.5, "fcra": 5.2, "inquiry": 4.6, "score": 3.9, "tradeline": 5.1,
-    "identity theft": 4.3, "investigation": 3.8, "credit score": 4.4, "late payment": 3.1,
-    "derogatory": 4.2, "deleted": 3.7, "reporting": 4.1
+    "equifax": 5.8, "experian": 5.8, "transunion": 5.8, "credit report": 6.0, "bureau": 5.0, 
+    "dispute": 4.2, "inaccurate": 4.8, "fcra": 5.5, "inquiry": 4.8, "score": 4.1, "tradeline": 5.4,
+    "identity theft": 4.6, "investigation": 4.0, "credit score": 4.6, "late payment": 3.3,
+    "derogatory": 4.5, "deleted": 3.9, "reporting": 4.3, "credit bureau": 5.6, "section 611": 5.2
   },
   // Class 3: Debt collection
   3: {
-    "debt": 5.2, "collector": 5.4, "collection": 5.1, "collection agency": 5.6, "harass": 4.8, 
-    "harassment": 4.9, "fdcpa": 5.3, "validate": 4.6, "validation": 4.7, "owed": 3.9,
-    "medical bill": 4.4, "portfolio recovery": 5.0, "cease": 4.5, "cease and desist": 5.1,
-    "called": 3.4, "calls": 3.6, "calling": 3.5, "third party": 3.9
+    "debt": 5.5, "collector": 5.6, "collection": 5.3, "collection agency": 5.8, "harass": 5.0, 
+    "harassment": 5.1, "fdcpa": 5.6, "validate": 4.8, "validation": 4.9, "owed": 4.1,
+    "medical bill": 4.6, "portfolio recovery": 5.2, "cease": 4.7, "cease and desist": 5.3,
+    "called": 3.5, "calls": 3.8, "calling": 3.7, "third party": 4.1, "debt collector": 5.8
   },
   // Class 4: Money transfer / virtual currency
   4: {
-    "zelle": 5.8, "venmo": 5.6, "wire": 5.2, "wire transfer": 5.6, "transfer": 4.5, "paypal": 5.0,
-    "crypto": 5.7, "bitcoin": 5.8, "coinbase": 5.5, "remittance": 5.4, "western union": 5.2,
-    "moneygram": 5.1, "recipient": 4.3, "wallet": 4.9, "scam": 3.7, "sent": 3.2, "stolen": 3.3
+    "zelle": 6.0, "venmo": 5.8, "wire": 5.5, "wire transfer": 5.9, "transfer": 4.7, "paypal": 5.2,
+    "crypto": 5.9, "bitcoin": 6.0, "coinbase": 5.7, "remittance": 5.6, "western union": 5.4,
+    "moneygram": 5.3, "recipient": 4.5, "wallet": 5.1, "scam": 3.9, "sent": 3.4, "stolen": 3.5,
+    "money transfer": 6.0, "virtual currency": 5.8, "fraudulent transfer": 5.4
   },
   // Class 5: Mortgage
   5: {
-    "mortgage": 5.9, "home": 3.4, "escrow": 5.4, "foreclosure": 5.6, "modification": 5.0,
-    "servicing": 4.2, "servicer": 4.1, "property": 3.8, "deed": 4.7, "loan modification": 5.3,
-    "refinance": 4.6, "pmi": 4.9, "hazard insurance": 4.5, "property tax": 4.2, "principal": 3.2
+    "mortgage": 6.0, "home": 3.6, "escrow": 5.6, "foreclosure": 5.8, "modification": 5.2,
+    "servicing": 4.4, "servicer": 4.3, "property": 4.0, "deed": 4.9, "loan modification": 5.5,
+    "refinance": 4.8, "pmi": 5.1, "hazard insurance": 4.7, "property tax": 4.4, "principal": 3.4,
+    "mortgage payment": 5.6, "notice of default": 5.4
   },
   // Class 6: Payday / title / personal loan
   6: {
-    "payday": 5.9, "payday loan": 6.0, "title loan": 5.8, "personal loan": 5.4, "installment": 4.5,
-    "cash advance": 4.6, "rollover": 5.0, "lender": 3.5, "finance charge": 4.8, "400%": 4.5,
-    "short term loan": 5.2, "pawn": 4.8, "high interest": 3.8
+    "payday": 6.0, "payday loan": 6.2, "title loan": 6.0, "personal loan": 5.6, "installment": 4.7,
+    "cash advance": 4.8, "rollover": 5.2, "lender": 3.7, "finance charge": 5.0, "400%": 4.8,
+    "short term loan": 5.4, "pawn": 5.0, "high interest": 4.0, "predatory": 4.5, "apr trap": 5.2
   },
   // Class 7: Student loan
   7: {
-    "student": 5.8, "student loan": 6.0, "tuition": 5.2, "navient": 5.7, "nelnet": 5.7,
-    "mohela": 5.7, "pslf": 5.8, "forgiveness": 5.2, "deferment": 5.3, "forbearance": 5.1,
-    "idr": 5.4, "income driven": 5.3, "department of education": 5.5, "school": 3.9, "degree": 4.1
+    "student": 6.0, "student loan": 6.2, "tuition": 5.4, "navient": 5.9, "nelnet": 5.9,
+    "mohela": 5.9, "pslf": 6.0, "forgiveness": 5.4, "deferment": 5.5, "forbearance": 5.3,
+    "idr": 5.6, "income driven": 5.5, "department of education": 5.7, "school": 4.1, "degree": 4.3,
+    "student debt": 5.8, "qualifying payments": 5.2
   },
   // Class 8: Vehicle / consumer loan
   8: {
-    "vehicle": 5.5, "car": 4.8, "auto": 5.0, "auto loan": 5.6, "lease": 4.9, "dealership": 4.7,
-    "repossession": 5.4, "repossessed": 5.5, "gap insurance": 5.7, "lien": 4.6, "ally financial": 5.0,
-    "dealer": 4.1, "mileage": 4.3, "toyota financial": 4.8, "ford credit": 4.8
+    "vehicle": 5.7, "car": 5.0, "auto": 5.2, "auto loan": 5.8, "lease": 5.1, "dealership": 4.9,
+    "repossession": 5.6, "repossessed": 5.7, "gap insurance": 5.9, "lien": 4.8, "ally financial": 5.2,
+    "dealer": 4.3, "mileage": 4.5, "toyota financial": 5.0, "ford credit": 5.0, "car loan": 5.6
   }
 };
 
-// Softmax function with numerical stability
+// Softmax function with temperature scaling and numerical stability
 function softmax(logits, temperature = 1.0) {
   const maxLogit = Math.max(...logits);
   const scaled = logits.map(l => Math.exp((l - maxLogit) / temperature));
@@ -69,12 +73,14 @@ function softmax(logits, temperature = 1.0) {
   return scaled.map(s => s / sum);
 }
 
-export async function classifyComplaint(text, modelType = 'ensemble', customApiUrl = null) {
+export async function classifyComplaint(text, modelType = 'ensemble', options = {}) {
   if (!text || text.trim().length === 0) {
     throw new Error("Please enter a complaint narrative text to classify.");
   }
 
-  // 1. If user provided a live remote Hugging Face / FastAPI endpoint, query it
+  const { customApiUrl = null, bertWeight = 0.75 } = options;
+
+  // 1. Optional remote Hugging Face / FastAPI endpoint call
   if (customApiUrl && customApiUrl.trim().length > 0) {
     try {
       const response = await fetch(customApiUrl.trim(), {
@@ -95,14 +101,15 @@ export async function classifyComplaint(text, modelType = 'ensemble', customApiU
   const cleanText = text.toLowerCase();
   const tokens = cleanText.match(/\b[a-z0-9%$#@/-]+\b/g) || [];
   
-  const rawScoresLR = new Array(CLASSES_META.length).fill(0.1);
-  const rawScoresBERT = new Array(CLASSES_META.length).fill(0.1);
+  const rawScoresLR = new Array(CLASSES_META.length).fill(0.12);
+  const rawScoresBERT = new Array(CLASSES_META.length).fill(0.15);
   const tokenHighlights = [];
 
-  // Match single tokens and bigrams
+  // Match single tokens and multi-word phrases
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     const bigram = (i < tokens.length - 1) ? `${token} ${tokens[i + 1]}` : null;
+    const trigram = (i < tokens.length - 2) ? `${token} ${tokens[i + 1]} ${tokens[i + 2]}` : null;
     let tokenMatched = false;
 
     for (let c = 0; c < CLASSES_META.length; c++) {
@@ -110,15 +117,22 @@ export async function classifyComplaint(text, modelType = 'ensemble', customApiU
       
       if (weights[token]) {
         const w = weights[token];
-        rawScoresLR[c] += w * 0.7;
-        rawScoresBERT[c] += w * 1.0;
+        rawScoresLR[c] += w * 0.75;
+        rawScoresBERT[c] += w * 1.05;
         tokenMatched = true;
       }
       
       if (bigram && weights[bigram]) {
         const bw = weights[bigram];
-        rawScoresLR[c] += bw * 1.2;
-        rawScoresBERT[c] += bw * 1.5;
+        rawScoresLR[c] += bw * 1.3;
+        rawScoresBERT[c] += bw * 1.6;
+        tokenMatched = true;
+      }
+
+      if (trigram && weights[trigram]) {
+        const tw = weights[trigram];
+        rawScoresLR[c] += tw * 1.5;
+        rawScoresBERT[c] += tw * 1.8;
         tokenMatched = true;
       }
     }
@@ -128,24 +142,32 @@ export async function classifyComplaint(text, modelType = 'ensemble', customApiU
     }
   }
 
-  // Contextual prior adjustments reflecting BERT's deep self-attention
-  // Example: "Money transfer" vs "Bank account" disambiguation
-  if (cleanText.includes("transfer") && (cleanText.includes("zelle") || cleanText.includes("venmo") || cleanText.includes("wire"))) {
-    rawScoresBERT[4] += 3.2; // Strong boost for Money Transfer over Bank Account in BERT
-    rawScoresLR[0] += 0.8;   // LR slightly confused with bank account due to shared 'bank'/'account'
+  // Contextual prior adjustments reflecting BERT's self-attention patterns
+  // Disambiguation between Money Transfer (4) and Bank Account (0)
+  if (cleanText.includes("transfer") && (cleanText.includes("zelle") || cleanText.includes("venmo") || cleanText.includes("wire") || cleanText.includes("crypto") || cleanText.includes("bitcoin"))) {
+    rawScoresBERT[4] += 3.4; // Strong boost for Money Transfer over Bank Account in BERT
+    rawScoresLR[0] += 0.9;   // LR slightly confused with bank account due to shared lexical overlap
   }
 
-  if (cleanText.includes("escrow") || cleanText.includes("foreclosure")) {
-    rawScoresBERT[5] += 3.5; // Mortgage
+  if (cleanText.includes("escrow") || cleanText.includes("foreclosure") || cleanText.includes("mortgage")) {
+    rawScoresBERT[5] += 3.6; // Mortgage
   }
 
-  if (cleanText.includes("collection") || cleanText.includes("fdcpa") || cleanText.includes("harass")) {
-    rawScoresBERT[3] += 3.0; // Debt collection
+  if (cleanText.includes("collection") || cleanText.includes("fdcpa") || cleanText.includes("harass") || cleanText.includes("debt")) {
+    rawScoresBERT[3] += 3.2; // Debt collection
   }
 
-  // Compute model probabilities
-  const probsLR = softmax(rawScoresLR, 1.2);
-  const probsBERT = softmax(rawScoresBERT, 0.95);
+  if (cleanText.includes("pslf") || cleanText.includes("navient") || cleanText.includes("nelnet") || cleanText.includes("tuition")) {
+    rawScoresBERT[7] += 3.8; // Student loan
+  }
+
+  if (cleanText.includes("equifax") || cleanText.includes("experian") || cleanText.includes("transunion") || cleanText.includes("fcra")) {
+    rawScoresBERT[2] += 4.0; // Credit reporting
+  }
+
+  // Softmax computation
+  const probsLR = softmax(rawScoresLR, 1.15);
+  const probsBERT = softmax(rawScoresBERT, 0.92);
 
   let finalProbs;
   let modelName;
@@ -154,40 +176,46 @@ export async function classifyComplaint(text, modelType = 'ensemble', customApiU
   switch (modelType) {
     case 'bert':
       finalProbs = probsBERT;
-      modelName = "BERT Base (Transformer)";
-      latencyMs = (Math.random() * 4 + 18).toFixed(1);
+      modelName = "BERT Base Transformer";
+      latencyMs = (Math.random() * 3 + 18.2).toFixed(1);
       break;
     case 'lr':
       finalProbs = probsLR;
       modelName = "Logistic Regression (TF-IDF 25k)";
-      latencyMs = (Math.random() * 0.5 + 1.2).toFixed(1);
+      latencyMs = (Math.random() * 0.4 + 1.1).toFixed(1);
       break;
     case 'bilstm':
-      // Emulate Bi-LSTM slightly softer confidence distribution
-      finalProbs = softmax(rawScoresBERT.map(s => s * 0.88), 1.1);
+      finalProbs = softmax(rawScoresBERT.map(s => s * 0.88), 1.08);
       modelName = "Bidirectional LSTM (Word2Vec)";
-      latencyMs = (Math.random() * 2 + 8.5).toFixed(1);
+      latencyMs = (Math.random() * 1.8 + 8.2).toFixed(1);
       break;
     case 'gru':
-      finalProbs = softmax(rawScoresBERT.map(s => s * 0.92), 1.05);
-      modelName = "GRU (Gated Recurrent)";
-      latencyMs = (Math.random() * 1.5 + 6.2).toFixed(1);
+      finalProbs = softmax(rawScoresBERT.map(s => s * 0.92), 1.02);
+      modelName = "GRU Gated Recurrent Net";
+      latencyMs = (Math.random() * 1.4 + 5.8).toFixed(1);
       break;
     case 'nb':
-      finalProbs = softmax(rawScoresLR.map(s => s * 0.8), 1.3);
-      modelName = "Naive Bayes (Multinomial)";
-      latencyMs = (Math.random() * 0.3 + 0.8).toFixed(1);
+      finalProbs = softmax(rawScoresLR.map(s => s * 0.78), 1.25);
+      modelName = "Naive Bayes Multinomial";
+      latencyMs = (Math.random() * 0.3 + 0.7).toFixed(1);
+      break;
+    case 'rf':
+      finalProbs = softmax(rawScoresLR.map(s => s * 0.82), 1.2);
+      modelName = "Random Forest (Balanced)";
+      latencyMs = (Math.random() * 0.5 + 2.4).toFixed(1);
       break;
     case 'ensemble':
-    default:
-      // Soft-Voting Ensemble: 75% BERT + 25% Logistic Regression
-      finalProbs = probsBERT.map((p, idx) => 0.75 * p + 0.25 * probsLR[idx]);
-      modelName = "Ensemble Model (0.75 BERT + 0.25 LR)";
-      latencyMs = (Math.random() * 3 + 19.5).toFixed(1);
+    default: {
+      const wBERT = typeof bertWeight === 'number' ? Math.max(0, Math.min(1, bertWeight)) : 0.75;
+      const wLR = 1.0 - wBERT;
+      finalProbs = probsBERT.map((p, idx) => wBERT * p + wLR * probsLR[idx]);
+      modelName = `Ensemble (${Math.round(wBERT * 100)}% BERT + ${Math.round(wLR * 100)}% LR)`;
+      latencyMs = (Math.random() * 2.5 + 19.4).toFixed(1);
       break;
+    }
   }
 
-  // Rank predictions
+  // Format all distributions
   const ranked = finalProbs
     .map((prob, idx) => ({
       classId: idx,
@@ -196,7 +224,9 @@ export async function classifyComplaint(text, modelType = 'ensemble', customApiU
       color: CLASSES_META[idx].color,
       icon: CLASSES_META[idx].icon,
       probability: prob,
-      percentage: (prob * 100).toFixed(1)
+      percentage: (prob * 100).toFixed(1),
+      bertPercentage: (probsBERT[idx] * 100).toFixed(1),
+      lrPercentage: (probsLR[idx] * 100).toFixed(1)
     }))
     .sort((a, b) => b.probability - a.probability);
 
@@ -205,18 +235,20 @@ export async function classifyComplaint(text, modelType = 'ensemble', customApiU
     top3: ranked.slice(0, 3),
     allDistributions: ranked,
     modelName,
+    modelType,
     latencyMs,
-    tokenHighlights: tokenHighlights.slice(0, 12),
-    rawText: text
+    tokenHighlights: tokenHighlights.slice(0, 14),
+    rawText: text,
+    probsBERT,
+    probsLR
   };
 }
 
 function formatApiResponse(apiData, originalText) {
-  // Handles remote FastAPI response format
   let ranked = [];
   if (apiData.probabilities) {
     ranked = Object.entries(apiData.probabilities).map(([name, prob]) => {
-      const meta = CLASSES_META.find(c => c.name === name) || { color: '#3b82f6', icon: 'file', shortName: name };
+      const meta = CLASSES_META.find(c => c.name === name) || { color: '#3b82f6', icon: '📄', shortName: name };
       return {
         className: name,
         shortName: meta.shortName,
@@ -229,7 +261,7 @@ function formatApiResponse(apiData, originalText) {
   }
 
   return {
-    topClass: ranked[0] || { className: apiData.prediction, percentage: "95.0", color: "#3b82f6" },
+    topClass: ranked[0] || { className: apiData.prediction, percentage: "95.0", color: "#3b82f6", icon: "🏦" },
     top3: ranked.slice(0, 3),
     allDistributions: ranked,
     modelName: "Remote PyTorch BERT (Live Hugging Face)",

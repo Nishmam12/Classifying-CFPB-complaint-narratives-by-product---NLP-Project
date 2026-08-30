@@ -1,0 +1,72 @@
+﻿[22:31:04] === Stage: setup ===
+[22:31:14]   cache hit  splits
+[22:31:16]   train budget 200,000 | val 303,213 | test 303,213
+[22:31:16]   cache hit  tfidf
+[22:31:20]   cache hit  sequences
+[22:31:22] === Stage: class probabilities for all 10 models ===
+[22:31:59]   built      Logistic Regression in 35s
+[22:32:00]   built      Naive Bayes in 1s
+[22:32:36]   built      Random Forest in 37s
+[22:33:11]     SimpleRNN epoch 1/4 loss=1.6591 macro_f1=0.4338 acc=0.6239
+[22:33:33]     SimpleRNN epoch 2/4 loss=1.2752 macro_f1=0.4438 acc=0.5965
+[22:33:56]     SimpleRNN epoch 3/4 loss=1.1473 macro_f1=0.5480 acc=0.7087
+[22:34:18]     SimpleRNN epoch 4/4 loss=1.0823 macro_f1=0.5719 acc=0.7201
+[22:34:32]   built      SimpleRNN in 115s
+[22:34:54]     GRU epoch 1/4 loss=1.0570 macro_f1=0.6871 acc=0.7989
+[22:35:15]     GRU epoch 2/4 loss=0.6345 macro_f1=0.6992 acc=0.8062
+[22:35:38]     GRU epoch 3/4 loss=0.5676 macro_f1=0.7069 acc=0.8089
+[22:36:03]     GRU epoch 4/4 loss=0.5166 macro_f1=0.7097 acc=0.8198
+[22:36:18]   built      GRU in 106s
+[22:36:43]     LSTM epoch 1/4 loss=1.0987 macro_f1=0.6749 acc=0.7834
+[22:37:09]     LSTM epoch 2/4 loss=0.7082 macro_f1=0.6980 acc=0.8017
+[22:37:35]     LSTM epoch 3/4 loss=0.6266 macro_f1=0.6956 acc=0.7998
+[22:38:00]     LSTM epoch 4/4 loss=0.5736 macro_f1=0.7099 acc=0.8159
+[22:38:14]   built      LSTM in 117s
+[22:38:55]     Bidirectional SimpleRNN epoch 1/4 loss=1.0421 macro_f1=0.6319 acc=0.7656
+[22:39:35]     Bidirectional SimpleRNN epoch 2/4 loss=0.8057 macro_f1=0.6561 acc=0.7782
+[22:40:15]     Bidirectional SimpleRNN epoch 3/4 loss=0.7539 macro_f1=0.6612 acc=0.7861
+[22:40:55]     Bidirectional SimpleRNN epoch 4/4 loss=0.7207 macro_f1=0.6719 acc=0.7911
+[22:41:17]   built      Bidirectional SimpleRNN in 183s
+[22:41:59]     Bidirectional GRU epoch 1/4 loss=0.8258 macro_f1=0.7000 acc=0.8099
+[22:42:41]     Bidirectional GRU epoch 2/4 loss=0.5804 macro_f1=0.7074 acc=0.8086
+[22:43:26]     Bidirectional GRU epoch 3/4 loss=0.5158 macro_f1=0.7221 acc=0.8263
+[22:44:17]     Bidirectional GRU epoch 4/4 loss=0.4641 macro_f1=0.7214 acc=0.8249
+[22:44:40]   built      Bidirectional GRU in 203s
+[22:45:27]     Bidirectional LSTM epoch 1/4 loss=0.9863 macro_f1=0.6818 acc=0.8022
+[22:46:11]     Bidirectional LSTM epoch 2/4 loss=0.6540 macro_f1=0.7026 acc=0.8112
+[22:46:54]     Bidirectional LSTM epoch 3/4 loss=0.5874 macro_f1=0.7132 acc=0.8216
+[22:47:38]     Bidirectional LSTM epoch 4/4 loss=0.5407 macro_f1=0.7182 acc=0.8225
+[22:48:01]   built      Bidirectional LSTM in 201s
+python : W0830 22:48:33.832000 23816 torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are 
+currently not supported in Windows or MacOs.
+At line:1 char:358
++ ...  Project\pipeline"; python -u ensemble.py *> "..\_cache\ensemble.log"
++                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (W0830 22:48:33....ndows or MacOs.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 2915.17it/s]
+[22:59:00]   built      BERT Base in 623s
+[22:59:00] models available: 10
+[22:59:00] === Selecting ensemble on VALIDATION ===
+[23:01:59] top 10 candidates by VALIDATION macro F1:
+[23:01:59]     0.7795  soft/val-F1   [3]  BERT Base, Random Forest, Naive Bayes
+[23:01:59]     0.7792  soft/uniform  [3]  BERT Base, Random Forest, Naive Bayes
+[23:01:59]     0.7770  soft/val-F1   [3]  BERT Base, Logistic Regression, Naive Bayes
+[23:01:59]     0.7768  soft/uniform  [3]  BERT Base, Logistic Regression, Naive Bayes
+[23:01:59]     0.7741  soft/val-F1   [3]  BERT Base, Bidirectional LSTM, Naive Bayes
+[23:01:59]     0.7739  soft/val-F1   [3]  BERT Base, Bidirectional GRU, Naive Bayes
+[23:01:59]     0.7737  soft/uniform  [3]  BERT Base, Bidirectional GRU, Naive Bayes
+[23:01:59]     0.7735  soft/uniform  [3]  BERT Base, Bidirectional LSTM, Naive Bayes
+[23:01:59]     0.7727  soft/val-F1   [5]  BERT Base, Logistic Regression, Bidirectional LSTM, Random Forest, Naive Bayes
+[23:01:59]     0.7725  soft/uniform  [5]  BERT Base, Logistic Regression, Bidirectional LSTM, Random Forest, Naive Bayes
+[23:01:59] 
+SELECTED on validation: soft/val-F1 over 3 models (val macro F1 0.7795)
+[23:01:59]   members: BERT Base, Random Forest, Naive Bayes
+[23:01:59] === Scoring the selected ensemble on TEST (once) ===
+[23:01:59]   ensemble  macro_f1=0.7792 acc=0.8651 weighted_f1=0.8684
+[23:01:59]   best single (BERT Base) macro_f1=0.7647
+[23:01:59]   delta +1.45 pp
+[23:01:59] wrote ensemble_results.json
