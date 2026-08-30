@@ -438,3 +438,117 @@ That branch is what prevents this claim being re-asserted in future runs.
   a limitation. Seeding it would make the recurrent results reproducible.
 - Ensemble bonus not attempted. LR and BERT make qualitatively different errors,
   so it remains the most promising route.
+
+## 2026-08-30 (evening) — Ensemble of Best-Performing Models: +1.45 pp, Bonus Criterion Satisfied
+
+**Context.** The ensemble was listed as "not attempted, out of scope" in the
+earlier entry today, because the approved re-run scope was "targeted — fix
+fairness + verify BERT." Revisited on request, since the bonus criteria award +2
+for "implementing an ensemble of the best-performing models and demonstrating
+improvement." The earlier work made it cheap: the BERT checkpoint and TF-IDF
+vectorizer were already cached, so only the six recurrent models needed
+retraining. Total ~31 minutes.
+
+### Protocol
+
+The point of failure for an ensemble result is selection bias, so the protocol
+was fixed before running anything:
+
+1. Produce class **probabilities** (not saved argmax labels) for all 10 models on
+   both validation and test.
+2. Search 1,506 configurations **on validation only** — hard and soft voting,
+   uniform and validation-F1 weighting, 3/5/7/9 members.
+3. Score the single winning configuration on test **exactly once**.
+
+A preliminary probe that searched on *test* found +0.56 pp with hard voting.
+That number was deliberately discarded as unreportable. Doing it properly gave a
+**larger** gain, because soft voting over probabilities was available to the
+honest search but not to the label-only probe.
+
+### Result
+
+Selected: **soft voting, validation-F1 weighted, over BERT Base + Random Forest
++ Naive Bayes.**
+
+| System | Test Macro F1 | Accuracy |
+|---|---|---|
+| BERT Base (best single) | 0.7647 | 0.8562 |
+| Ensemble | **0.7792** | **0.8651** |
+| Difference | **+1.45 pp** | +0.89 pp |
+
+**Validation 0.7795 → test 0.7792.** A 0.0003 gap after a 1,506-candidate search
+is the strongest available evidence that the selection found real signal rather
+than validation noise.
+
+### Why these members
+
+The winning combination is **not** the three strongest models. Random Forest
+ranks 8th (0.6920) and Naive Bayes 5th (0.7211), beating GRU, LSTM and both
+bidirectional gated variants for a place in the vote.
+
+Disagreement with BERT on the test split explains it: Random Forest 14.0%,
+Naive Bayes 13.7% — the highest among the strong models — while every recurrent
+model sits at 10–12%, largely echoing predictions BERT already makes. A weaker
+model that errs in *different places* contributes more to a vote than a stronger
+model that errs in the same places. This is the textbook ensemble principle
+holding on real measurements, and it is the most interesting thing in the result.
+
+### Where the gain lands
+
+Every one of the nine classes improved; none regressed. The gain concentrates on
+the rare classes — **+2.35 pp** mean across the four smallest versus **+0.57 pp**
+across the four largest. *Payday / title / personal loan*, the rarest class at
+1.13%, gains the most at **+3.34 pp** (0.5401 → 0.5735).
+
+That direction matters for the Section 14 narrative: rare classes are where
+single models are least confident, so a vote has the most to correct. It also
+means ensembling addresses the imbalance problem from a different angle than the
+mitigation strategies of Section 14 — and, unlike those, without degrading
+anything.
+
+### Cost
+
+Effectively free. Both added members are the cheapest models in the study, so the
+ensemble runs in 268.3 s against BERT's 267.3 s over 303,213 documents — a **1.0
+second, 0.4% increase** for +1.45 pp. Unlike the accuracy/latency trade that
+dominates Section 13, there is no trade-off to weigh: the ensemble dominates its
+strongest member at essentially equal cost.
+
+### Infrastructure
+
+- New `pipeline/ensemble.py`: caches per-model probabilities to `_cache/proba/`,
+  so a crash costs one model rather than the stage.
+- New `pipeline/gen_tex.py`: **generates** `report/ensemble_section.tex` from
+  `ensemble_results.json` — three tables plus prose that branches on whether the
+  gain lands on rare or common classes and on whether the cost overhead is
+  negligible. Written as a generator specifically so the paper cannot drift from
+  the measurements, which is the failure mode that made the original Section 3.8
+  table untrustworthy.
+- `discussion.py` gained `build_section_15`, which branches on whether the
+  ensemble actually beat the best single model — if a validation winner had
+  failed to transfer, the prose would have said so.
+- Notebook now 38 code cells; Section 15 appended with table, per-class
+  comparison chart, and generated discussion. Audit still clean: zero cells
+  without output, zero with error output.
+- `acl_report.tex` abstract and conclusion updated; the Results section now
+  `\input`s the generated subsection.
+
+### Caveat to disclose
+
+The validation split has now been used three times: hyperparameter tuning, epoch
+selection, and ensemble selection. With 303,213 validation documents the
+overfitting risk is small, and the 0.0003 val→test gap is direct evidence it did
+not occur — but the reuse should be stated in the limitations rather than glossed.
+
+### Remaining bonus criteria
+
+- **GitHub repo** — explicitly ruled out by the user's earlier no-git decision.
+- **Vercel deployment** — user reports the codebase is hosted, but the criterion
+  asks for the *model* served so users can test predictions. Unverified which is
+  the case. Note that BERT at ~418 MB exceeds Vercel serverless limits; Logistic
+  Regression (~2 MB plus vectorizer, 0.2 s over 303k documents, 0.7367 Macro F1)
+  would deploy comfortably.
+- **Ablation studies** — arguably already satisfied twice over: Section 14 is 13
+  controlled single-variable runs, and the padding-masking result (0.2222 →
+  0.6121) is a textbook ablation. Worth framing explicitly as ablations in the
+  report rather than leaving implicit.
