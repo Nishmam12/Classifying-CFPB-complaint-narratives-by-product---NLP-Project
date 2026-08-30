@@ -8,7 +8,7 @@
 [![BRAC University](https://img.shields.io/badge/BRAC%20University-CSE440%20NLP%20II-navy)](https://www.bracu.ac.bd)
 
 > **CSE440 (Natural Language Processing II) Lab Project**  
-> **Instructor:** Dr. Farig Sadeque  
+> **Instructor:** Labib Hasan Khan , Ariyan Hossain
 > **Topic:** Multi-Class Consumer Financial Protection Bureau (CFPB) Complaint Narrative Classification  
 > **Live Interactive Web Demo:** `[Insert Your Vercel / Cloudflare URL here]`
 
