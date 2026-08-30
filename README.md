@@ -10,7 +10,7 @@
 > **CSE440 (Natural Language Processing II) Lab Project**  
 > **Instructor:** Labib Hasan Khan , Ariyan Hossain
 > **Topic:** Multi-Class Consumer Financial Protection Bureau (CFPB) Complaint Narrative Classification  
-> **Live Interactive Web Demo:** `[Click Here](https://web-blush-nine-97.vercel.app/)`
+> **Live Interactive Web Demo:** [Click Here](https://web-blush-nine-97.vercel.app/)
 
 ---
 
