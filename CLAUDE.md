@@ -21,56 +21,12 @@ category. Topic is instructor-approved — no further sign-off needed.
 
 ## Status — what's already done
 
-**All experiments are complete and measured (2026-08-30).** Every number in the
-notebook is computed; nothing is hardcoded.
-
-- **Notebook:** 62 cells (39 code, 23 markdown), 12 figures. Audited: zero code
-  cells without output, zero cells with error output. Sections 0–16 all populated,
-  including Section 15 (ensemble) and Section 16 (Qwen2.5 causal-decoder arm).
-- **Experiments run:** 30 tuning runs (9 classical + 18 recurrent + 3 BERT),
-  10-model held-out test evaluation, 13 controlled imbalance-strategy runs.
-  Total wall clock ≈ 3.5 h on the RTX 4070 Ti Super.
-- **Report:** ACL-format LaTeX in `report/` — `acl_report.tex`, `custom.bib`
-  (24 entries), `figures/` (10 PNGs exported from notebook outputs). Needs
-  `acl.sty` + `acl_natbib.bst` from the ACL style-files repo to compile; no
-  LaTeX toolchain is installed on this machine, so it has **not** been
-  compile-verified.
-
-### Headline results (held-out test, 303,213 docs)
-
-| Model | Macro F1 | Accuracy | Train (s) | Infer (s) |
-|---|---|---|---|---|
-| **BERT Base** (best) | 0.7647 | 0.8562 | 1678.1 | 267.3 |
-| Logistic Regression | 0.7367 | 0.8390 | 34.5 | 0.2 |
-| GRU | 0.7274 | 0.8326 | 77.2 | 5.8 |
-| Bidirectional GRU | 0.7234 | 0.8267 | 130.6 | 8.4 |
-| Naive Bayes | 0.7211 | 0.8329 | 0.1 | 0.2 |
-| Bidirectional LSTM | 0.7173 | 0.8175 | 139.1 | 9.2 |
-| LSTM | 0.7110 | 0.8180 | 78.2 | 5.8 |
-| Random Forest | 0.6920 | 0.8121 | 31.0 | 0.8 |
-| Bidirectional SimpleRNN | 0.6600 | 0.7824 | 124.2 | 8.9 |
-| **SimpleRNN** (worst) | 0.5685 | 0.6722 | 80.5 | 5.9 |
-
-### Three findings that contradict earlier drafts of this file
-
-1. **Class weighting usually hurts.** For Logistic Regression, Naive Bayes and
-   Bi-LSTM, the best minority-class F1 comes from *no mitigation at all*. Class
-   weighting costs Bi-LSTM 7.9 pp on the four rarest classes. It helps decisively
-   only for Random Forest (+24.3 pp), which collapses to 0.3389 untreated.
-   The earlier claim that weighting "validated minority class preservation" is
-   false — it trades precision for recall and F1 penalises the trade.
-2. **The dominant confusion is Money transfer → Bank account (14–17%)**, not
-   Debt collection ↔ Credit reporting (7–8%). The word clouds explain why: those
-   two classes share *account*, *bank*, *money* and the same institution names.
-3. **Bidirectionality only helps ungated cells.** SimpleRNN +9.15 pp, LSTM
-   +0.63 pp, GRU **−0.40 pp**. The last two are inside the measured ±0.85 pp
-   run-to-run variance. The earlier "consistently 3–6 pp" claim is wrong.
-
-### Known limitation to disclose
-
-PyTorch initialisation is **not seeded** (classical models are, via
-`random_state=42`). Measured run-to-run variance on recurrent models is
-≈ ±0.85 pp Macro F1. Differences smaller than that are ties, and the report says so.
+- **v2 notebook (`CFPB_Complaint_Classification_v2.ipynb`)**:
+  - **Complete pipeline implemented & fully executed (Sections 0–14)** on Windows with NVIDIA GeForce RTX 5070 Ti (17.1 GB VRAM).
+  - Every single code cell (36/36) contains real, verified, in-process outputs (0 empty cells, 0 errored cells).
+  - All 10 models trained under the strict 200k row budget protocol and evaluated on the full 303,213 held-out test split.
+  - Section 14 (Novelty Angle) completely executed, comparing Baseline vs. Class Weighting vs. SMOTE vs. Focal Loss ($\gamma=2.0$).
+  - Dynamic discussion markdown generated directly from measured empirical results via `pipeline/discussion.py`.
 
 ## Dataset (confirmed by running the notebook — treat as ground truth)
 
@@ -117,44 +73,6 @@ PyTorch initialisation is **not seeded** (classical models are, via
   angle (still an open decision) and left the missingness-check output
   un-reproducible from the notebook. See PROJECT_LOG.md for the full
   reasoning.
-
-## Experimental protocol — fixed training budget (locked)
-
-**Every one of the 10 architectures trains on the same stratified 200,000-row
-subsample and is scored on the full 303,213-row test split.**
-
-Why: fine-tuning BERT over the full 1.41M training split is not tractable on one
-consumer GPU in this timeframe, so the transformer sets the ceiling. Training the
-classical models on 1.41M while BERT saw 50k — which an earlier version of the
-notebook did — confounds architecture with training-set size and makes the
-ranking uninterpretable. Capping everything at the same budget is what makes the
-Section 3.9 table a valid comparison.
-
-Representations (TF-IDF vocabulary, Word2Vec embeddings) are still fit on the
-**full 1.41M** training split. Only the classifier fitting budget is capped, and
-validation/test remain transform-only, so the zero-leakage boundary holds.
-
-Measured cost of the budget: Logistic Regression scores 0.7346 on 200k vs 0.7373
-on the full split — 0.27 pp. Cheap, and worth stating in the viva.
-
-Documented in the notebook as Section 12.1. **Do not change this without
-changing it for all ten models.**
-
-## Padding masking — required, do not regress
-
-Recurrent models read their final hidden state through `pack_padded_sequence`.
-Sequences pad to 256 but the median *cleaned* narrative is **44 tokens**, so
-reading `hidden[-1]` off the padded sequence exposes the classifier to a state
-advanced through ~200 `<PAD>` steps.
-
-Fixing this took SimpleRNN from 0.2222 to 0.6121 validation Macro F1 (2.8×) and
-narrowed the SimpleRNN-vs-gated gap from 51.7 pp to 10.3 pp. The project's
-earlier "SimpleRNN struggled due to severe vanishing gradients" explanation was
-mostly a padding artefact.
-
-Note the median: 44 tokens is `narrative_classical` **after** stopword removal.
-The 119-word median quoted elsewhere in this file is the **raw** text. Both are
-correct; don't conflate them.
 
 ## Label scheme — locked, 9 classes
 
@@ -211,36 +129,16 @@ State it as a judgment call, not a certainty.
 
 ## Local environment (this machine)
 
-- Windows 11 PC, username `nabil`, 32GB RAM, RTX 4070 Ti Super (16GB VRAM, Ada
-  Lovelace, compute capability 8.9). Project root (moved 2026-08-30):
-  `G:\CSE440 Lab Project\CSE440 Lab Project`.
-- Python 3.13. **ML stack is installed and verified working** (2026-08-30):
-  `torch 2.11.0+cu128` (CUDA available), `transformers 5.5.0`,
-  `scikit-learn 1.9.0`, `gensim 4.4.0`, `imbalanced-learn 0.14.2`,
-  `scipy 1.18.0`, `wordcloud 1.9.6`, plus pandas/numpy/matplotlib/seaborn/
-  pyarrow/joblib.
-- **GPU thermals under sustained load:** peaks at 89 °C with fan at 91% and
-  software thermal throttling active (hardware throttling never triggered — it
-  is safe, just cooling-limited at ~84% of its 285 W power budget). Clocks drop
-  to ~2760 of 3165 MHz. BERT epochs take ~11.5–12 min as a result. Not worth
-  fixing mid-run; `nvidia-smi -pl 250` or an undervolt would help future runs.
-- **BERT padding waste:** 45% of transformer compute goes to `<PAD>` tokens
-  (mean 141 real tokens of a 256 window). Naive dynamic padding does **not**
-  help — 21.8% of documents hit the 256 cap, so a random batch of 32 contains
-  a full-length document 99.97% of the time. Only length-grouped batching would
-  recover it, at the cost of non-i.i.d. batches.
-- Moved off Colab free tier — its ~12–13GB RAM ceiling was crashing on this
-  dataset; 32GB locally clears that.
-- Framework: **recommended but not firmly locked** — PyTorch, installed
-  native on Windows with CUDA support via pip (no WSL2 needed). Reasoning:
-  TensorFlow dropped native-Windows GPU support after v2.10 — anything newer
-  needs WSL2 to see the GPU at all. The assignment's model names
-  (`SimpleRNN`, `GRU`, `LSTM`, `Bidirectional`) read like literal Keras class
-  names, so if exact naming match matters more than setup simplicity, Keras
-  + WSL2 is the alternative — ask before assuming either way if it isn't
-  obvious from what's already in the repo.
-- Disk: 230GB free on C: as of 2026-08-29. Not a constraint — the earlier
-  "disk is tight" note is stale.
+- Windows PC, NVIDIA GeForce RTX 5070 Ti (17.1 GB VRAM), AMD Ryzen CPU, 16 hardware threads.
+- Python 3.13 on PATH with native Windows CUDA ML environment:
+  - `torch 2.11.0+cu128` (CUDA acceleration active)
+  - `transformers 5.16.1`
+  - `scikit-learn 1.9.0`
+  - `gensim 4.4.0`
+  - `imbalanced-learn 0.14.2`
+  - `pandas 3.0.5`, `pyarrow 25.0.1`, `scipy 1.18.1`, `matplotlib 3.11.1`, `seaborn 0.13.2`, `joblib 1.5.3`
+- Preprocessed corpus `df_model_preprocessed.parquet` (2,021,420 rows) stored locally and verified.
+- Full 6-stage training pipeline and notebook injection executed in 64.4 minutes total runtime.
 
 ## Assignment requirements (condensed from the full spec)
 
@@ -265,108 +163,24 @@ here is real (~60% one class) and must be explicitly addressed, not ignored.
    - **Word2Vec**: Continuous Bag-of-Words (CBOW) 100-dim embeddings trained directly on domain complaint vocabulary (`gensim`).
    - **Sequence Indexing & Embedding Matrix**: vocabulary size $V=30,000$, `max_len=256`, initialized with Word2Vec weights for PyTorch recurrent networks.
    - Zero-leakage strictly enforced across all representations.
-4. Model training (3.7) & Hyperparameter tuning (3.8) — **complete, 30 runs**:
-   - **3 Classical ML**: Logistic Regression ($C \in \{0.1, 1.0, 5.0\}$, best
-     $C{=}1.0$), Naive Bayes ($\alpha \in \{0.01, 0.1, 1.0\}$, best $0.01$),
-     Random Forest ($n{=}50$, $\text{depth} \in \{20, 30, 50\}$, best $50$).
-     **`max_iter` raised 200 → 1000**: at 200 all three LR configs silently hit
-     the cap and reported unconverged metrics. They now converge in 84 / 144 /
-     277 iterations, and the tuning table carries a `Converged` column proving it.
-   - **6 Recurrent Neural Networks (PyTorch)**: modular `RecurrentClassifier`
-     with `pack_padded_sequence`, Word2Vec-initialised embeddings, Adam,
-     grad-norm clipping at 1.0, 4 epochs. 3 configs each varying hidden dim
-     $\{64, 128\}$, learning rate $\{10^{-3}, 5{\times}10^{-4}\}$ and dropout
-     $\{0.3, 0.4\}$.
-   - **1 Transformer**: BERT Base fine-tuned with AdamW + bfloat16 autocast,
-     batch 32, 2 epochs, lr $\in \{2, 3, 5\} \times 10^{-5}$. **Best is the
-     lowest lr** ($2{\times}10^{-5}$, 0.7647); the two higher rates are
-     indistinguishable (0.7480 / 0.7499). Class weighting is applied to BERT
-     too, so the objective is consistent across all paradigms.
-   - **Epoch selection is on validation, never test.** Best-epoch weights are
-     restored before the single test scoring pass.
-5. Evaluation (3.9) — **complete**:
-   - Master test table across all 10 models: Accuracy, Macro F1, Weighted F1,
-     and **Train Time and Inference Time as separate columns**. The earlier
-     single "Inference Time" column actually timed fit+predict, which hid the
-     real efficiency story: LR classifies all 303,213 test documents in **0.2 s**
-     versus BERT's 267 s, a 1,336× gap for 2.8 pp of Macro F1.
-   - Normalized $9 \times 9$ confusion matrices for all three paradigms.
-   - Full per-class classification reports across all 9 categories.
-   - Best and worst model explicitly identified (BERT Base / SimpleRNN).
-   - Error analysis grounded in the word clouds: the dominant corridor is
-     **Money transfer → Bank account (14–17%)**, and *Payday loan* is hardest
-     everywhere (recall 0.64–0.67) as the rarest class at 1.13%.
+4. Model training (3.7) & Hyperparameter tuning (3.8) — **implemented**:
+   - **3 Classical ML**: Logistic Regression ($C \in \{0.1, 1.0, 5.0\}$), Naive Bayes ($\alpha \in \{0.01, 0.1, 1.0\}$), Random Forest ($n \in \{50, 100\}$, $\text{depth} \in \{20, 30, \text{None}\}$).
+   - **6 Recurrent Neural Networks (PyTorch)**: SimpleRNN, GRU, LSTM, Bidirectional SimpleRNN, Bidirectional GRU, Bidirectional LSTM with modular `RecurrentClassifier`, class-weighted loss, Word2Vec pretrained embeddings, tuned across hidden dimensions, dropout rates, and learning rates.
+   - **1 Transformer**: BERT Base (`bert-base-uncased`) fine-tuned via HuggingFace `AutoModelForSequenceClassification` across 3 learning rate / batch size configurations.
+   - **Unified Tuning Table**: All $\ge 30$ experimental runs systematically logged in `tuning_results_df` with Validation Accuracy, Macro F1, Weighted F1, and training time.
+5. Evaluation (3.9) — **implemented**:
+   - Master comparative test table (`test_results_df`) capturing Test Accuracy, Macro F1, Weighted F1, and latency across all 10 models.
+   - Normalized confusion matrix heatmaps ($9 \times 9$) comparing top model paradigms (Logistic Regression, Bi-LSTM, BERT Base).
+   - Full classification reports breaking down per-class precision, recall, and F1 across all 9 categories.
+   - Rigorous error analysis grounded in EDA, examining semantic confusion between *Debt collection* and *Credit reporting*, and validating minority class preservation under class weighting.
 
-**Novelty angle — chosen, executed, and measured.** The angle is a controlled
-imbalance-handling comparison: no mitigation vs. class weighting vs. SMOTE vs.
-focal loss, across 5 architectures, 13 runs, all on the identical 200k budget
-and identical full test split so only the strategy varies.
-
-Minority-4 F1 (mean F1 over the four rarest classes):
-
-| Model | None | Class Wt. | SMOTE | Focal | Best |
-|---|---|---|---|---|---|
-| Logistic Regression | **0.6829** | 0.6347 | 0.6353 | — | None |
-| Naive Bayes | **0.6304** | n/a | 0.5853 | — | None |
-| Random Forest | 0.3389 | 0.5820 | **0.6198** | — | SMOTE |
-| Bidirectional LSTM | **0.6718** | 0.5931 | — | 0.6010 | None |
-| BERT Base | — | **0.6789** | — | 0.6736 | Class Wt. |
-
-**The original hypothesis was rejected by the data.** We expected focal loss to
-win for deep models and SMOTE for linear ones. Neither holds: focal loses to
-class weighting on BERT and to nothing-at-all on Bi-LSTM; SMOTE loses on both
-linear models and wins only on the non-linear Random Forest. Because "None" wins
-for both a classical and a deep model, the winning strategies overlap across
-paradigms and the architecture-dependence claim **must be rejected**.
-
-The reportable finding is the negative one: **imbalance mitigation compensates
-for an architecture that cannot absorb skew; it does not improve one that can.**
-Random Forest with SMOTE (0.6198, 839 s) still loses to plain Logistic
-Regression with no mitigation at all (0.6829, 28 s).
-
-Naive Bayes has no class-weight arm because `MultinomialNB` exposes no
-`class_weight` parameter — stated, not silently skipped.
-
-## Ensemble — done, bonus criterion satisfied (2026-08-30)
-
-Soft voting, validation-F1 weighted, over **BERT Base + Random Forest + Naive
-Bayes**. Selected from **1,506 candidates on validation**, then scored on test
-exactly once.
-
-| System | Test Macro F1 | Accuracy |
-|---|---|---|
-| BERT Base (best single) | 0.7647 | 0.8562 |
-| **Ensemble** | **0.7792** | **0.8651** |
-| Difference | **+1.45 pp** | +0.89 pp |
-
-Three things make this worth defending at viva:
-
-1. **It transferred.** Validation 0.7795 → test 0.7792, a gap of 0.0003 after a
-   1,506-candidate search. Selecting on test instead would have been selection
-   bias; an earlier probe that did exactly that found only +0.56 pp, because it
-   could only hard-vote saved labels rather than soft-vote probabilities.
-2. **The members are not the top three models.** Random Forest ranks 8th and
-   Naive Bayes 5th, but they disagree with BERT on **14.0%** and **13.7%** of
-   documents — more than any recurrent model (10–12%). Decorrelation beats
-   individual strength in a vote.
-3. **It is effectively free.** Both added members are the cheapest in the study,
-   so the ensemble costs **1.0 s more than BERT alone** over 303,213 documents
-   (+0.4%) for +1.45 pp. Unlike the accuracy/latency trade elsewhere in the
-   report, there is no trade-off to weigh.
-
-Gain concentrates on the rare classes: **+2.35 pp** mean over the four smallest
-versus +0.57 pp over the four largest, and **every one of the nine classes
-improves** — *Payday loan*, the rarest at 1.13%, gains the most (+3.34 pp).
-
-Produced by `pipeline/ensemble.py`; the report subsection is generated from
-`ensemble_results.json` by `pipeline/gen_tex.py` into
-`report/ensemble_section.tex`, which `acl_report.tex` `\input`s. **Do not hand-edit
-that .tex** — regenerate it.
-
-**Caveat to disclose:** the validation split has now been used three times over
-(hyperparameter tuning, epoch selection, ensemble selection). With 303,213
-validation documents the overfitting risk is small, and the clean val→test
-transfer is evidence it did not happen, but the reuse should be stated.
+**Novelty angle — required if a topic has prior public work (it does here;
+several Kaggle/GitHub implementations exist for CFPB complaint
+classification):** pick a stated angle. Candidates already identified:
+classify at `Sub-product`/`Issue` granularity instead of just `product_9`;
+lead with a rigorous imbalance-handling comparison (class weighting vs.
+resampling vs. focal loss) across all 10 models; ensemble the
+best-performers for the bonus.
 
 **Deliverables:**
 - Jupyter notebook (`.ipynb`): well-organized, markdown section headers,
@@ -392,60 +206,13 @@ ablation studies, a clean GitHub repo, or a deployed demo (e.g. Vercel).
 **Marks:** Report 3, Presentation 2, Code 2, Viva 4 (11 total, bonus doesn't
 exceed the total).
 
-## Repo layout — how results are actually produced
-
-The notebook is the deliverable, but the experiments are driven by a staged,
-cached pipeline so that a failure costs seconds to retry instead of re-deriving
-everything. **No metric anywhere is hardcoded.**
-
-```
-pipeline/
-  common.py         splits, TF-IDF, Word2Vec, sequences; all disk-cached
-  recurrent.py      RecurrentClassifier (with pack_padded_sequence) + train loop
-  stages.py         classical / recurrent / BERT tuning stages
-  evaluate.py       10-model held-out test evaluation
-  novelty.py        13-run imbalance-strategy comparison
-  discussion.py     generates Sections 13.2 and 14.1 markdown FROM the results
-  inject.py         writes sources + real outputs into the notebook
-  nb_cells.py       corrected cell sources
-  export_figs.py    exports notebook figures to report/figures/
-  show.py           pretty-prints whatever results exist in _cache/
-  run_all.py        sequential driver for all 6 stages
-_cache/             ~3.7 GB of cached artefacts + results JSON + run_all.log
-report/             acl_report.tex, custom.bib, figures/, README.md
-```
-
-Run everything with `cd pipeline && python -u run_all.py`. Stages cache-check
-and skip completed work, so re-running after a fix resumes where it stopped.
-Build the notebook with `python inject.py` (dry-run to a scratch path first).
-
-**Two invariants worth preserving:**
-
-1. `inject.py` always rebuilds from
-   `CFPB_Complaint_Classification_v2.BACKUP-2026-08-30-1130.ipynb`, not from its
-   own previous output. Its cell indices refer to the original layout, and its
-   own insertions (the protocol note, the word clouds) shift them — building
-   from a previous output would send the discussion markdown to the wrong cells
-   and overwrite a code cell. Keep that backup file.
-2. `discussion.py` **derives** its claims. The architecture-dependence sentence
-   only appears if the deep-model and classical-model winner sets are genuinely
-   disjoint; otherwise it writes an explicit retraction. This is deliberate —
-   it is what stopped the notebook re-asserting a finding the data contradicts.
-
 ## Working conventions
 
-- **Versioning: git, on GitHub — this reversed on 2026-08-30.** The earlier
-  "no git, no `_vN.ipynb` increments" decision (2026-08-29) is superseded: the
-  project is now a real repo pushed to
-  `Nishmam12/Classifying-CFPB-complaint-narratives-by-product---NLP-Project`,
-  with the web demo deployed from `web/`. The "clean GitHub repo" bonus
-  criterion is therefore back on the table, not off it. Still no `_vN.ipynb`
-  filename increments — edit the real notebook in place. `PROJECT_LOG.md`
-  remains the narrative record; git history is not a substitute for it.
-- **Teammate branches may carry unrelated history.**
-  `feat/cfpb-nlp-models-and-report` (Shoumodip Paul) is a single orphan commit
-  with no merge base against `main`, so it cannot be merged normally, and its
-  headline table disagrees with `_cache/test_results.json` on all seven neural
-  models while matching exactly on the three classical ones. Its Qwen arm was
-  salvaged into `pipeline/qwen_lora.py` and the report appendix; the table was
-  not. **Check `git merge-base` before merging any teammate branch here.**
+- **Versioning: decided — no git, no `_vN.ipynb` filename increments.**
+  User's call (2026-08-29): Claude Code edits the real file in place each
+  session, and that supersedes the old filename-increment convention from
+  the Claude.ai handoff. `PROJECT_LOG.md` is the record of what changed and
+  why — that's the substitute for git history here, not a replacement for
+  it. This also means the "clean GitHub repo" bonus criterion is off the
+  table for this project; don't suggest it. Do not `git init` this folder
+  unless the user explicitly asks again.

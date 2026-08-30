@@ -11,6 +11,7 @@ Fixes carried over from the original cell 43:
     single column was labelled "Inference Time" but timed fit+predict
 """
 import json
+import os
 import time
 
 import numpy as np
@@ -44,6 +45,9 @@ def add(records, preds_dict, name, paradigm, cfg_id, m, train_s, infer_s, preds)
 
 
 def main():
+    if load_json("test_results.json") and os.path.exists(cpath("test_predictions.npz")):
+        log("stage_evaluate: cache hit"); return
+
     d = setup()
     S = d["S"]
     Xtr, _, Xte, _ = d["tfidf"]
@@ -51,7 +55,16 @@ def main():
     y_train, y_test = S["y_train"], S["y_test"]
     dev = device()
 
-    records, preds_dict = [], {}
+    records = load_json("test_results_partial.json") or []
+    preds_dict = {}
+    partial_npz = cpath("test_predictions_partial.npz")
+    if os.path.exists(partial_npz):
+        z = np.load(partial_npz)
+        preds_dict = {k: z[k] for k in z.files}
+
+    done = {r["Model"] for r in records}
+    if done:
+        log(f"=== Held-out test evaluation: resuming, {len(done)} model(s) already evaluated: {', '.join(sorted(done))} ===")
 
     # ── classical ──
     from sklearn.ensemble import RandomForestClassifier
@@ -68,6 +81,9 @@ def main():
             n_estimators=p["n_estimators"], max_depth=p["max_depth"],
             class_weight="balanced", random_state=SEED, n_jobs=-1)),
     ]:
+        if name in done:
+            log(f"  skipping {name} (already evaluated)")
+            continue
         row = best_config(tuned, name)
         params = json.loads(row["Hyperparameters"])
         clf = factory(params)
@@ -75,6 +91,8 @@ def main():
         t0 = time.time(); preds = clf.predict(Xte); infer_s = time.time() - t0
         add(records, preds_dict, name, "Classical ML", row["Config ID"],
             metrics(y_test, preds), train_s, infer_s, preds)
+        save_json("test_results_partial.json", records)
+        np.savez_compressed(partial_npz, **preds_dict)
 
     # ── recurrent ──
     from recurrent import build, make_loader, train_model
@@ -91,6 +109,9 @@ def main():
     from recurrent import predict
 
     for name, cell, bi in RNN_ARCHES:
+        if name in done:
+            log(f"  skipping {name} (already evaluated)")
+            continue
         row = best_config(tuned, name)
         cfg = json.loads(row["Hyperparameters"])
         full = {**cfg, "cell_type": cell, "bidirectional": bi}
@@ -104,22 +125,29 @@ def main():
         t0 = time.time(); preds = predict(model, test_loader, dev); infer_s = time.time() - t0
         add(records, preds_dict, name, "Recurrent Neural Net", row["Config ID"],
             metrics(y_test, preds), train_s, infer_s, preds)
+        save_json("test_results_partial.json", records)
+        np.savez_compressed(partial_npz, **preds_dict)
         del model, opt
         torch.cuda.empty_cache()
 
     # ── bert ──
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-    log("=== BERT Base on held-out test set ===")
-    tuned = load_json("tune_bert.json")
-    row = best_config(tuned, "BERT Base")
-    tok = AutoTokenizer.from_pretrained(cpath("bert_best"))
-    te_ids, te_mask = bert_tokenize(S["test_contextual"], tok, "test")
-    model = AutoModelForSequenceClassification.from_pretrained(cpath("bert_best")).to(dev)
-    loader = bert_loader(te_ids, te_mask, y_test, 256, False)
-    t0 = time.time(); preds = bert_predict(model, loader, dev); infer_s = time.time() - t0
-    add(records, preds_dict, "BERT Base", "Transformer", row["Config ID"],
-        metrics(y_test, preds), row["Training Time (s)"], infer_s, preds)
+    if "BERT Base" not in done:
+        log("=== BERT Base on held-out test set ===")
+        tuned = load_json("tune_bert.json")
+        row = best_config(tuned, "BERT Base")
+        tok = AutoTokenizer.from_pretrained(cpath("bert_best"))
+        te_ids, te_mask = bert_tokenize(S["test_contextual"], tok, "test")
+        model = AutoModelForSequenceClassification.from_pretrained(cpath("bert_best")).to(dev)
+        loader = bert_loader(te_ids, te_mask, y_test, 256, False)
+        t0 = time.time(); preds = bert_predict(model, loader, dev); infer_s = time.time() - t0
+        add(records, preds_dict, "BERT Base", "Transformer", row["Config ID"],
+            metrics(y_test, preds), row["Training Time (s)"], infer_s, preds)
+        save_json("test_results_partial.json", records)
+        np.savez_compressed(partial_npz, **preds_dict)
+    else:
+        log("  skipping BERT Base (already evaluated)")
 
     records.sort(key=lambda r: r["Test Macro F1"], reverse=True)
     save_json("test_results.json", records)

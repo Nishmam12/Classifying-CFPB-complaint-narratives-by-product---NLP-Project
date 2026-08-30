@@ -66,6 +66,9 @@ def row(results, model, strategy, m, minority, per_class, elapsed):
 
 
 def main(smote_budget):
+    if load_json("novelty_results.json"):
+        log("stage_novelty: cache hit"); return
+
     d = setup()
     S = d["S"]
     Xtr, _, Xte, _ = d["tfidf"]
@@ -82,7 +85,11 @@ def main(smote_budget):
         "Money transfer / virtual currency", "Student loan"]]
     log(f"minority class ids: {minority_ids}")
 
-    results = []
+    results = load_json("novelty_partial.json") or []
+    done = {(r["Model"], r["Strategy"]) for r in results}
+    if done:
+        log(f"=== Novelty imbalance comparison: resuming, {len(done)} row(s) already done ===")
+
     cw_arr = class_weights(y_train)
 
     # ── classical: None / Class Weighting / SMOTE ──
@@ -114,34 +121,42 @@ def main(smote_budget):
         for strat, weighted in [("None", False), ("Class Weighting", True)]:
             if name == "Naive Bayes" and strat == "Class Weighting":
                 continue  # MultinomialNB exposes no class_weight - documented, not skipped silently
+            if (name, strat) in done:
+                log(f"  skipping {name} / {strat} (already computed)")
+                continue
             t0 = time.time()
             clf = classical(name, weighted).fit(Xtr, y_train)
             preds = clf.predict(Xte)
             mn, per = minority_f1(y_test, preds, minority_ids)
             row(results, name, strat, metrics(y_test, preds), mn, per, time.time() - t0)
 
-    log(f"=== Classical: SMOTE (budget {smote_budget:,}) ===")
-    from imblearn.over_sampling import SMOTE
-    from sklearn.model_selection import train_test_split
+    smote_needed = any((name, "SMOTE") not in done for name in ["Logistic Regression", "Naive Bayes", "Random Forest"])
+    if smote_needed:
+        log(f"=== Classical: SMOTE (budget {smote_budget:,}) ===")
+        from imblearn.over_sampling import SMOTE
+        from sklearn.model_selection import train_test_split
 
-    if smote_budget < len(y_train):
-        idx, _ = train_test_split(np.arange(len(y_train)), train_size=smote_budget,
-                                  stratify=y_train, random_state=SEED)
-        Xs, ys = Xtr[idx], y_train[idx]
-    else:
-        Xs, ys = Xtr, y_train
-    t0 = time.time()
-    Xsm, ysm = SMOTE(random_state=SEED).fit_resample(Xs, ys)
-    log(f"  SMOTE: {Xs.shape} -> {Xsm.shape} in {time.time()-t0:.0f}s")
-    save_json("smote_meta.json", {"budget": int(smote_budget), "before": list(Xs.shape),
-                                  "after": list(Xsm.shape), "seconds": round(time.time()-t0, 1)})
-
-    for name in ["Logistic Regression", "Naive Bayes", "Random Forest"]:
+        if smote_budget < len(y_train):
+            idx, _ = train_test_split(np.arange(len(y_train)), train_size=smote_budget,
+                                      stratify=y_train, random_state=SEED)
+            Xs, ys = Xtr[idx], y_train[idx]
+        else:
+            Xs, ys = Xtr, y_train
         t0 = time.time()
-        clf = classical(name, False).fit(Xsm, ysm)
-        preds = clf.predict(Xte)
-        mn, per = minority_f1(y_test, preds, minority_ids)
-        row(results, name, "SMOTE", metrics(y_test, preds), mn, per, time.time() - t0)
+        Xsm, ysm = SMOTE(random_state=SEED).fit_resample(Xs, ys)
+        log(f"  SMOTE: {Xs.shape} -> {Xsm.shape} in {time.time()-t0:.0f}s")
+        save_json("smote_meta.json", {"budget": int(smote_budget), "before": list(Xs.shape),
+                                      "after": list(Xsm.shape), "seconds": round(time.time()-t0, 1)})
+
+        for name in ["Logistic Regression", "Naive Bayes", "Random Forest"]:
+            if (name, "SMOTE") in done:
+                log(f"  skipping {name} / SMOTE (already computed)")
+                continue
+            t0 = time.time()
+            clf = classical(name, False).fit(Xsm, ysm)
+            preds = clf.predict(Xte)
+            mn, per = minority_f1(y_test, preds, minority_ids)
+            row(results, name, "SMOTE", metrics(y_test, preds), mn, per, time.time() - t0)
 
     # ── Bi-LSTM: None / Class Weighting / Focal ──
     from recurrent import build, make_loader, train_model
@@ -164,6 +179,9 @@ def main(smote_budget):
         ("Class Weighting", nn.CrossEntropyLoss(weight=cw_t)),
         ("Focal Loss (gamma=2)", FocalLoss(gamma=2.0, weight=cw_t)),
     ]:
+        if ("Bidirectional LSTM", strat) in done:
+            log(f"  skipping Bidirectional LSTM / {strat} (already computed)")
+            continue
         torch.cuda.empty_cache()
         model, opt = build(full, emb, NUM_CLASSES, dev)
         t0 = time.time()
@@ -178,61 +196,41 @@ def main(smote_budget):
         torch.cuda.empty_cache()
 
     # ── BERT: Class Weighting (from main run) / Focal ──
-    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+    if ("BERT Base", "Focal Loss (gamma=2)") not in done:
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-    log("=== BERT: Class Weighting (from the Section 13 evaluation) ===")
-    # The class-weighted BERT was already trained and scored during the held-out
-    # test evaluation. Reusing its saved predictions gives BERT a real comparison
-    # arm here for free, rather than a table row with a single populated cell.
-    import os
+        log("=== BERT: Focal Loss ===")
+        tok = AutoTokenizer.from_pretrained("bert-base-uncased")
+        tr_ids, tr_mask = bert_tokenize(S["train_contextual"], tok, "train")
+        te_ids, te_mask = bert_tokenize(S["test_contextual"], tok, "test")
+        bcfg = load_json("bert_best_cfg.json")
 
-    from common import cpath
-
-    npz = cpath("test_predictions.npz")
-    if os.path.exists(npz):
-        z = np.load(npz)
-        if "BERT Base" in z.files:
-            bp = z["BERT Base"]
-            bt = [r for r in load_json("test_results.json") or []
-                  if r["Model"] == "BERT Base"]
-            mn, per = minority_f1(y_test, bp, minority_ids)
-            row(results, "BERT Base", "Class Weighting", metrics(y_test, bp), mn, per,
-                bt[0]["Train Time (s)"] if bt else 0.0)
-        else:
-            log("  WARNING: no saved BERT predictions - skipping its baseline arm")
+        model = AutoModelForSequenceClassification.from_pretrained(
+            "bert-base-uncased", num_labels=NUM_CLASSES).to(dev)
+        opt = torch.optim.AdamW(model.parameters(), lr=bcfg["lr"], weight_decay=0.01)
+        crit = FocalLoss(gamma=2.0, weight=cw_t)
+        loader = bert_loader(tr_ids, tr_mask, y_train, bcfg["batch_size"], True)
+        t0 = time.time()
+        for epoch in range(1, bcfg["epochs"] + 1):
+            model.train()
+            total = 0.0
+            for b_ids, b_mask, b_y in loader:
+                b_ids, b_mask, b_y = b_ids.to(dev), b_mask.to(dev), b_y.to(dev)
+                opt.zero_grad()
+                with torch.autocast("cuda", dtype=torch.bfloat16, enabled=dev.type == "cuda"):
+                    logits = model(input_ids=b_ids, attention_mask=b_mask).logits
+                loss = crit(logits.float(), b_y)
+                loss.backward()
+                nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                opt.step()
+                total += loss.item()
+            log(f"    BERT/focal epoch {epoch}/{bcfg['epochs']} loss={total/len(loader):.4f}")
+        preds = bert_predict(model, bert_loader(te_ids, te_mask, y_test, 256, False), dev)
+        mn, per = minority_f1(y_test, preds, minority_ids)
+        row(results, "BERT Base", "Focal Loss (gamma=2)", metrics(y_test, preds), mn, per,
+            time.time() - t0)
     else:
-        log("  WARNING: test_predictions.npz missing - skipping BERT baseline arm")
-
-    log("=== BERT: Focal Loss ===")
-    tok = AutoTokenizer.from_pretrained("bert-base-uncased")
-    tr_ids, tr_mask = bert_tokenize(S["train_contextual"], tok, "train")
-    te_ids, te_mask = bert_tokenize(S["test_contextual"], tok, "test")
-    bcfg = load_json("bert_best_cfg.json")
-
-    model = AutoModelForSequenceClassification.from_pretrained(
-        "bert-base-uncased", num_labels=NUM_CLASSES).to(dev)
-    opt = torch.optim.AdamW(model.parameters(), lr=bcfg["lr"], weight_decay=0.01)
-    crit = FocalLoss(gamma=2.0, weight=cw_t)
-    loader = bert_loader(tr_ids, tr_mask, y_train, bcfg["batch_size"], True)
-    t0 = time.time()
-    for epoch in range(1, bcfg["epochs"] + 1):
-        model.train()
-        total = 0.0
-        for b_ids, b_mask, b_y in loader:
-            b_ids, b_mask, b_y = b_ids.to(dev), b_mask.to(dev), b_y.to(dev)
-            opt.zero_grad()
-            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=dev.type == "cuda"):
-                logits = model(input_ids=b_ids, attention_mask=b_mask).logits
-            loss = crit(logits.float(), b_y)
-            loss.backward()
-            nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            opt.step()
-            total += loss.item()
-        log(f"    BERT/focal epoch {epoch}/{bcfg['epochs']} loss={total/len(loader):.4f}")
-    preds = bert_predict(model, bert_loader(te_ids, te_mask, y_test, 256, False), dev)
-    mn, per = minority_f1(y_test, preds, minority_ids)
-    row(results, "BERT Base", "Focal Loss (gamma=2)", metrics(y_test, preds), mn, per,
-        time.time() - t0)
+        log("  skipping BERT Base / Focal Loss (gamma=2) (already computed)")
 
     save_json("novelty_results.json", results)
     log(f"Wrote novelty_results.json ({len(results)} rows)")

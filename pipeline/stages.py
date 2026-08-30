@@ -77,37 +77,57 @@ def stage_classical():
     Xtr, Xva, _, _ = d["tfidf"]
     y_train, y_val = S["y_train"], S["y_val"]
 
-    runs = []
-    log("=== Classical ML tuning (9 runs) ===")
+    runs = load_json("tune_classical_partial.json") or []
+    done = {r["Config ID"] for r in runs}
+    if done:
+        log(f"=== Classical ML tuning: resuming, {len(done)} run(s) already done: {', '.join(sorted(done))} ===")
+    else:
+        log("=== Classical ML tuning (9 runs) ===")
+
     # max_iter raised from 200: the original run hit the cap on all three
     # configs and reported metrics from unconverged models.
     for C in [0.1, 1.0, 5.0]:
+        cfg_id = f"LR-C{C}"
+        if cfg_id in done:
+            log(f"  skipping {cfg_id} (already tuned)")
+            continue
         t0 = time.time()
         clf = LogisticRegression(C=C, class_weight="balanced", max_iter=1000,
                                  solver="lbfgs", random_state=SEED)
         clf.fit(Xtr, y_train)
         m = metrics(y_val, clf.predict(Xva))
         n_iter = int(np.max(clf.n_iter_))
-        record(runs, "Logistic Regression", "Classical ML", f"LR-C{C}",
+        record(runs, "Logistic Regression", "Classical ML", cfg_id,
                {"C": C, "class_weight": "balanced", "max_iter": 1000, "solver": "lbfgs"},
                m, time.time() - t0, {"Converged": bool(n_iter < 1000), "n_iter": n_iter})
+        save_json("tune_classical_partial.json", runs)
 
     for alpha in [0.01, 0.1, 1.0]:
+        cfg_id = f"NB-a{alpha}"
+        if cfg_id in done:
+            log(f"  skipping {cfg_id} (already tuned)")
+            continue
         t0 = time.time()
         clf = MultinomialNB(alpha=alpha).fit(Xtr, y_train)
         m = metrics(y_val, clf.predict(Xva))
-        record(runs, "Naive Bayes", "Classical ML", f"NB-a{alpha}", {"alpha": alpha},
+        record(runs, "Naive Bayes", "Classical ML", cfg_id, {"alpha": alpha},
                m, time.time() - t0)
+        save_json("tune_classical_partial.json", runs)
 
     for depth in [20, 30, 50]:
+        cfg_id = f"RF-n50-d{depth}"
+        if cfg_id in done:
+            log(f"  skipping {cfg_id} (already tuned)")
+            continue
         t0 = time.time()
         clf = RandomForestClassifier(n_estimators=50, max_depth=depth,
                                      class_weight="balanced", random_state=SEED, n_jobs=-1)
         clf.fit(Xtr, y_train)
         m = metrics(y_val, clf.predict(Xva))
-        record(runs, "Random Forest", "Classical ML", f"RF-n50-d{depth}",
+        record(runs, "Random Forest", "Classical ML", cfg_id,
                {"n_estimators": 50, "max_depth": depth, "class_weight": "balanced"},
                m, time.time() - t0)
+        save_json("tune_classical_partial.json", runs)
 
     save_json("tune_classical.json", runs)
     log(f"stage_classical: wrote {len(runs)} runs")
@@ -129,10 +149,18 @@ def stage_recurrent():
     cw = torch.tensor(class_weights(S["y_train"]), dtype=torch.float32).to(dev)
     criterion = nn.CrossEntropyLoss(weight=cw)
 
-    runs = []
-    log("=== Recurrent tuning (18 runs) ===")
+    runs = load_json("tune_recurrent_partial.json") or []
+    done = {(r["Model"], r["Config ID"]) for r in runs}
+    if done:
+        log(f"=== Recurrent tuning: resuming, {len(done)} run(s) already done ===")
+    else:
+        log("=== Recurrent tuning (18 runs) ===")
+
     for name, cell, bi in RNN_ARCHES:
         for i, cfg in enumerate(RNN_CONFIGS, 1):
+            if (name, f"Config-{i}") in done:
+                log(f"  skipping {name} / Config-{i} (already tuned)")
+                continue
             full = {**cfg, "cell_type": cell, "bidirectional": bi}
             t0 = time.time()
             model, opt = build(full, emb, NUM_CLASSES, dev)

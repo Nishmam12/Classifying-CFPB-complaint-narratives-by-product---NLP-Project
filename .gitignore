@@ -1,39 +1,41 @@
-# IDE & System Metadata
-.kilo/
-.remember/
-*.BACKUP-*
-*.bak
-.DS_Store
-Thumbs.db
-
-# Node & Web
-node_modules/
-dist/
-.vite/
-.vercel/
-
 # Python & Jupyter
 __pycache__/
 *.py[cod]
 *$py.class
 .ipynb_checkpoints/
+.venv/
+venv/
+env/
 
-# Huge data & model binary files (> 50MB)
+# IDEs
+.vscode/
+.idea/
+.kilo/
+.remember/
+
+# Large Datasets & Embeddings
 *.parquet
 *.csv
-*.safetensors
+*.zip
+*.tar.gz
+*.npz
+*.npy
+*.pkl
 *.bin
 *.pt
 *.pth
-*.npy
-*.npz
-_cache/bert_best/
-best_bert_model/*.safetensors
-best_bert_model/*.bin
+*.safetensors
+*.gguf
 
-# Environment & local secrets
-.env
-.env.local
-.venv/
-env/
+# Cache & Model Weights
+_cache/
+_cache_prev_machine_backup/
+best_bert_model/
+*.log
 
+# Keep results and figures
+!figures/*.png
+!results/
+!results/*.csv
+!results/plots/*.png
+!_cache/plots/

@@ -113,24 +113,15 @@ def build_env():
     import torch
     import torch.nn as nn
     from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-    from sklearn.metrics import classification_report, confusion_matrix, f1_score
+    from sklearn.metrics import classification_report, confusion_matrix
 
     env = {
         "pd": pd, "np": np, "plt": plt, "json": json, "re": _re, "sns": sns,
         "torch": torch, "nn": nn, "ENGLISH_STOP_WORDS": ENGLISH_STOP_WORDS,
         "confusion_matrix": confusion_matrix, "classification_report": classification_report,
-        "f1_score": f1_score,
         "class_names": list(S["classes"]),
         "y_test": S["y_test"],
-        "ENSEMBLE_PRED_PATH": cpath("ensemble_predictions.npz"),
-        "QWEN_REPORTED_PATH": cpath("qwen_reported.json"),
-        "QWEN_CM_PATH": os.path.join(os.path.dirname(NB_PATH), "report", "figures",
-                                     "qwen_confusion_matrix.png"),
     }
-
-    ens = load_json("ensemble_results.json")
-    if ens:
-        env["ens"] = ens
 
     tuning = []
     for f in ["tune_classical.json", "tune_recurrent.json", "tune_bert.json"]:
@@ -160,27 +151,8 @@ def build_env():
     return env
 
 
-def _load_df_model():
-    """Minimal frame for the word clouds: label plus cleaned narrative."""
-    from common import PARQUET
-
-    return pd.read_parquet(PARQUET, columns=["product_9", "narrative_classical"])
-
-
-# Every cell index in this module refers to the ORIGINAL notebook layout. The
-# injector inserts cells (the protocol note, the word clouds), which shifts
-# those indices, so building from a previous output would send the discussion
-# markdown to the wrong cells. Always start from the pristine pre-rebuild
-# backup: the transform is then a pure function of the backup plus the results,
-# and re-running it is safe and reproducible.
-SOURCE_NB = os.path.join(os.path.dirname(NB_PATH),
-                         "CFPB_Complaint_Classification_v2.BACKUP-2026-08-30-1130.ipynb")
-
-
 def read_nb(path=None):
-    src = path or (SOURCE_NB if os.path.exists(SOURCE_NB) else NB_PATH)
-    log(f"  building from: {os.path.basename(src)}")
-    with open(src, encoding="utf-8") as f:
+    with open(path or NB_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -334,83 +306,7 @@ def main(out_path=None):
     else:
         log("  SKIPPED cell 53 - novelty results not available yet")
 
-    # 4b. ensemble section, appended after the Section 14 discussion
-    ens = env.get("ens")
-    if ens and not any("## 15." in "".join(c["source"]) for c in nb["cells"]):
-        cells = [
-            {"cell_type": "markdown", "metadata": {},
-             "source": nb_cells.ENSEMBLE_MD.splitlines(keepends=True)},
-        ]
-        try:
-            outs = exec_cell(nb_cells.ENSEMBLE_CELL, env)
-            log(f"  executed:        ensemble cell -> {len(outs)} output(s)")
-        except Exception as ex:
-            outs = []
-            log(f"  ENSEMBLE CELL FAILED: {type(ex).__name__}: {ex}")
-        cells.append({"cell_type": "code", "metadata": {}, "execution_count": None,
-                      "outputs": outs,
-                      "source": nb_cells.ENSEMBLE_CELL.splitlines(keepends=True)})
-
-        ens_preds = None
-        p = cpath("ensemble_predictions.npz")
-        if os.path.exists(p):
-            ens_preds = np.load(p)["ensemble"]
-        md15 = discussion.build_section_15(
-            ens, test_rows or [], env["y_test"], ens_preds,
-            env.get("test_predictions_dict", {}), env["class_names"])
-        cells.append({"cell_type": "markdown", "metadata": {},
-                      "source": md15.splitlines(keepends=True)})
-        nb["cells"].extend(cells)
-        log(f"  ensemble section appended ({len(cells)} cells)")
-
-    # 4c. causal-decoder (Qwen) arm. Reported with its own protocol rather than
-    # merged into the Section 12 table, because it was scored on a 5,000-document
-    # subset of a separately prepared split.
-    qwen_ok = (os.path.exists(env.get("QWEN_REPORTED_PATH", ""))
-               and os.path.exists(env.get("QWEN_CM_PATH", ""))
-               and "test_predictions_dict" in env)
-    if qwen_ok and not any("## 16." in "".join(c["source"]) for c in nb["cells"]):
-        try:
-            outs = exec_cell(nb_cells.QWEN_CELL, env)
-            log(f"  executed:        qwen cell -> {len(outs)} output(s)")
-            nb["cells"].extend([
-                {"cell_type": "markdown", "metadata": {},
-                 "source": nb_cells.QWEN_MD.splitlines(keepends=True)},
-                {"cell_type": "code", "metadata": {}, "execution_count": None,
-                 "outputs": outs,
-                 "source": nb_cells.QWEN_CELL.splitlines(keepends=True)},
-            ])
-            log("  qwen section appended (2 cells)")
-        except Exception as ex:
-            log(f"  QWEN CELL FAILED: {type(ex).__name__}: {ex}")
-    elif not qwen_ok:
-        log("  SKIPPED qwen section - reported JSON, figure or predictions missing")
-
-    # 5a. word clouds, appended to the end of the preprocessing section (they
-    # need the cleaned narrative_classical field, which Section 9 creates)
-    if not any("Word Clouds" in "".join(c["source"]) for c in nb["cells"]):
-        at = next((i for i, c in enumerate(nb["cells"])
-                   if c["cell_type"] == "markdown"
-                   and "".join(c["source"]).startswith("## 10.")), None)
-        if at is not None:
-            wc_out = []
-            try:
-                wc_env = dict(env)
-                wc_env["df_model"] = _load_df_model()
-                wc_out = exec_cell(nb_cells.WORDCLOUD_CELL, wc_env)
-                log(f"  executed:        word cloud cell -> {len(wc_out)} output(s)")
-            except Exception as ex:
-                log(f"  WORD CLOUD FAILED: {type(ex).__name__}: {ex}")
-            nb["cells"].insert(at, {
-                "cell_type": "code", "metadata": {}, "execution_count": None,
-                "outputs": wc_out,
-                "source": nb_cells.WORDCLOUD_CELL.splitlines(keepends=True)})
-            nb["cells"].insert(at, {
-                "cell_type": "markdown", "metadata": {},
-                "source": nb_cells.WORDCLOUD_MD.splitlines(keepends=True)})
-            log(f"  word cloud section inserted before cell {at}")
-
-    # 5b. protocol note, inserted last so earlier fixed indices stay valid
+    # 5. protocol note, inserted last so earlier fixed indices stay valid
     header = next((i for i, c in enumerate(nb["cells"])
                    if c["cell_type"] == "markdown"
                    and "".join(c["source"]).startswith("## 12.")), None)

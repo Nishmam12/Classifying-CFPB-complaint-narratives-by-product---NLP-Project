@@ -1,11 +1,16 @@
 """Sequential driver for the full rebuild. Stops at the first failing stage.
 
-Each stage caches its results, so re-running this after a fix resumes from
-wherever it stopped instead of re-deriving the pipeline.
+Each stage caches its results, so re-running this after a fix or power outage
+resumes from wherever it stopped instead of re-deriving the pipeline.
 """
+import os
 import subprocess
 import sys
 import time
+
+PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_PATH = os.path.join(PROJECT, "_cache", "run_all.log")
+os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
 
 STEPS = [
     ("setup (representations on full train split)", ["common.py"]),
@@ -17,18 +22,43 @@ STEPS = [
 ]
 
 
+def log_and_print(msg, log_file):
+    print(msg, flush=True)
+    log_file.write(msg + "\n")
+    log_file.flush()
+
+
+def run_step(cmd, log_file):
+    proc = subprocess.Popen(
+        [sys.executable, "-u", *cmd],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+        encoding="utf-8",
+        errors="replace",
+    )
+    for line in proc.stdout:
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        log_file.write(line)
+        log_file.flush()
+    return proc.wait()
+
+
 def main():
     t_all = time.time()
-    for i, (label, cmd) in enumerate(STEPS, 1):
-        print(f"\n{'='*70}\n[{i}/{len(STEPS)}] {label}\n{'='*70}", flush=True)
-        t0 = time.time()
-        rc = subprocess.call([sys.executable, "-u", *cmd])
-        if rc != 0:
-            print(f"\n!!! STAGE FAILED: {label} (exit {rc}) after {time.time()-t0:.0f}s",
-                  flush=True)
-            return rc
-        print(f"--- {label} done in {time.time()-t0:.0f}s", flush=True)
-    print(f"\nALL STAGES COMPLETE in {(time.time()-t_all)/60:.1f} min", flush=True)
+    with open(LOG_PATH, "a", encoding="utf-8", errors="replace") as log_file:
+        log_and_print(f"\n[{time.strftime('%Y-%m-%d %H:%M:%S')}] === run_all.py session started ===", log_file)
+        for i, (label, cmd) in enumerate(STEPS, 1):
+            log_and_print(f"\n{'='*70}\n[{i}/{len(STEPS)}] {label}\n{'='*70}", log_file)
+            t0 = time.time()
+            rc = run_step(cmd, log_file)
+            if rc != 0:
+                log_and_print(f"\n!!! STAGE FAILED: {label} (exit {rc}) after {time.time()-t0:.0f}s", log_file)
+                return rc
+            log_and_print(f"--- {label} done in {time.time()-t0:.0f}s", log_file)
+        log_and_print(f"\nALL STAGES COMPLETE in {(time.time()-t_all)/60:.1f} min", log_file)
     return 0
 
 
