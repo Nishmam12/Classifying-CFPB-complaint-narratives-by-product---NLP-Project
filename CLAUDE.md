@@ -24,8 +24,9 @@ category. Topic is instructor-approved — no further sign-off needed.
 **All experiments are complete and measured (2026-08-30).** Every number in the
 notebook is computed; nothing is hardcoded.
 
-- **Notebook:** 57 cells (37 code, 20 markdown), 10 figures. Audited: zero code
-  cells without output, zero cells with error output. Sections 0–14 all populated.
+- **Notebook:** 62 cells (39 code, 23 markdown), 12 figures. Audited: zero code
+  cells without output, zero cells with error output. Sections 0–16 all populated,
+  including Section 15 (ensemble) and Section 16 (Qwen2.5 causal-decoder arm).
 - **Experiments run:** 30 tuning runs (9 classical + 18 recurrent + 3 BERT),
   10-model held-out test evaluation, 13 controlled imbalance-strategy runs.
   Total wall clock ≈ 3.5 h on the RTX 4070 Ti Super.

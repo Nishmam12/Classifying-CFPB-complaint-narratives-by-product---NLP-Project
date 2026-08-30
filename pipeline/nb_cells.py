@@ -646,3 +646,94 @@ REPLACEMENTS = {
     51: CELL_51,
     52: CELL_52,
 }
+
+
+QWEN_MD = """## 16. Fourth Paradigm: A Causal-Decoder Small Language Model (Qwen2.5-1.5B + LoRA)
+
+Sections 12-15 compare ten systems across three paradigms: sparse classical models,
+recurrent networks over domain embeddings, and a bidirectional transformer encoder.
+A fourth paradigm was explored separately - a modern **causal decoder** adapted with
+Low-Rank Adaptation.
+
+Qwen2.5-1.5B was fitted for nine-way classification with LoRA (rank 16, alpha 32,
+dropout 0.05) on all attention and MLP projections, updating roughly 1.2% of the
+1.54B backbone with the classification head left trainable.
+
+**That run is reported here rather than added to the Section 12 table, and the cell
+below shows why.** It was scored on a 5,000-document subset drawn from a separately
+prepared copy of the corpus with its own label mapping, not on the shared
+303,213-document test split, and its training budget was never recorded. To show
+that this is a real obstacle and not a technicality, the cell re-scores three of our
+*own* models on 5,000-document subsets of the true test split and measures how far
+the answer moves."""
+
+QWEN_CELL = '''
+qwen = json.load(open(QWEN_REPORTED_PATH, encoding="utf-8"))
+rep, proto = qwen["reported"], qwen["protocol"]
+
+print("=" * 78)
+print("Causal-decoder arm - Qwen2.5-1.5B with LoRA")
+print("=" * 78)
+print(f"  contributed by : {qwen['source']}")
+print(f"  adaptation     : {qwen['model']}")
+print(f"  trainable      : {rep['trainable_params']:,} of {rep['total_params']:,} "
+      f"({100 * rep['trainable_params'] / rep['total_params']:.2f}%)")
+print()
+print("  REPORTED, on that run's own evaluation subset:")
+print(f"    accuracy          {rep['test_accuracy']:.4f}")
+print(f"    macro F1          {rep['test_macro_f1']:.4f}")
+print(f"    weighted F1       {rep['test_weighted_f1']:.4f}")
+print(f"    inference cost    {rep['ms_per_document']:.2f} ms/document")
+print()
+print("  PROTOCOL DIFFERENCE - why this is not in the Section 12 table:")
+print(f"    scored on {proto['test_rows']:,} documents, not the shared "
+      f"{proto['test_rows_shared']:,}")
+print(f"    data source: {proto['data_source']}")
+print(f"    training budget recorded: "
+      f"{proto['train_rows'] if proto['train_rows'] else 'no'}")
+
+by_class = [np.where(y_test == c)[0] for c in range(len(class_names))]
+
+def _draw(rng, mode):
+    idx = []
+    for ci in by_class:
+        k = round(proto["test_rows"] * len(ci) / len(y_test)) if mode == "prop" else min(556, len(ci))
+        idx.append(rng.choice(ci, max(1, k), replace=False))
+    return np.concatenate(idx)
+
+print()
+print(f"  Does a {proto['test_rows']:,}-document subset give the same answer as the full")
+print("  split? Re-scoring three of our own models over 30 resamples:")
+print()
+print(f"    {'model':24s} {'full split':>11s} {'proportional 5k':>18s} {'balanced 5k':>18s}")
+for name in ["BERT Base", "Logistic Regression", "Random Forest"]:
+    p = test_predictions_dict[name]
+    full = f1_score(y_test, p, average="macro", zero_division=0)
+    cols = []
+    for mode in ("prop", "bal"):
+        vals = [f1_score(y_test[i], p[i], average="macro", zero_division=0)
+                for i in (_draw(np.random.default_rng(s), mode) for s in range(30))]
+        cols.append(f"{np.mean(vals):.3f} +/- {np.std(vals):.3f}")
+    print(f"    {name:24s} {full:11.4f} {cols[0]:>18s} {cols[1]:>18s}")
+
+print()
+print("  A proportional subset is unbiased but noisy; a class-balanced subset of the")
+print("  same size inflates macro F1 by roughly 6 points, because the rare classes")
+print("  whose precision collapses under the 52.9:1 prior are no longer rare.")
+print("  The reported accuracy of "
+      f"{rep['test_accuracy']:.4f} sits between what this arm's confusion matrix")
+print("  implies under each regime, so we cannot tell which it used.")
+print()
+print("  pipeline/qwen_lora.py reruns this arm on the shared 200,000-row budget and")
+print("  the full test split; once it writes qwen_lora_results.json the arm can join")
+print("  the Section 12 table.")
+
+img = plt.imread(QWEN_CM_PATH)
+fig, ax = plt.subplots(figsize=(9, 7.5))
+ax.imshow(img)
+ax.axis("off")
+ax.set_title("Qwen2.5-1.5B LoRA - row-normalised confusion matrix "
+             "(5,000-document subset)", fontsize=11)
+plt.tight_layout()
+plt.show()
+'''

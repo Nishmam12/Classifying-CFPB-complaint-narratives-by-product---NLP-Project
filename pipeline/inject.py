@@ -123,6 +123,9 @@ def build_env():
         "class_names": list(S["classes"]),
         "y_test": S["y_test"],
         "ENSEMBLE_PRED_PATH": cpath("ensemble_predictions.npz"),
+        "QWEN_REPORTED_PATH": cpath("qwen_reported.json"),
+        "QWEN_CM_PATH": os.path.join(os.path.dirname(NB_PATH), "report", "figures",
+                                     "qwen_confusion_matrix.png"),
     }
 
     ens = load_json("ensemble_results.json")
@@ -359,6 +362,29 @@ def main(out_path=None):
                       "source": md15.splitlines(keepends=True)})
         nb["cells"].extend(cells)
         log(f"  ensemble section appended ({len(cells)} cells)")
+
+    # 4c. causal-decoder (Qwen) arm. Reported with its own protocol rather than
+    # merged into the Section 12 table, because it was scored on a 5,000-document
+    # subset of a separately prepared split.
+    qwen_ok = (os.path.exists(env.get("QWEN_REPORTED_PATH", ""))
+               and os.path.exists(env.get("QWEN_CM_PATH", ""))
+               and "test_predictions_dict" in env)
+    if qwen_ok and not any("## 16." in "".join(c["source"]) for c in nb["cells"]):
+        try:
+            outs = exec_cell(nb_cells.QWEN_CELL, env)
+            log(f"  executed:        qwen cell -> {len(outs)} output(s)")
+            nb["cells"].extend([
+                {"cell_type": "markdown", "metadata": {},
+                 "source": nb_cells.QWEN_MD.splitlines(keepends=True)},
+                {"cell_type": "code", "metadata": {}, "execution_count": None,
+                 "outputs": outs,
+                 "source": nb_cells.QWEN_CELL.splitlines(keepends=True)},
+            ])
+            log("  qwen section appended (2 cells)")
+        except Exception as ex:
+            log(f"  QWEN CELL FAILED: {type(ex).__name__}: {ex}")
+    elif not qwen_ok:
+        log("  SKIPPED qwen section - reported JSON, figure or predictions missing")
 
     # 5a. word clouds, appended to the end of the preprocessing section (they
     # need the cleaned narrative_classical field, which Section 9 creates)

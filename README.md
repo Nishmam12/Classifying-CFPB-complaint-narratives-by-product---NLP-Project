@@ -45,7 +45,7 @@ This project implements all avenues for the **+2 Bonus Marks**:
 
 4. **📊 Comprehensive 10-Model Empirical Benchmarking:**
    * Trained on a fair budget (200,000 docs) and evaluated on 303,213 held-out test documents.
-   * Audited 60-cell Jupyter notebook with zero unexecuted cells and zero hardcoded metrics.
+   * Audited 62-cell Jupyter notebook with zero unexecuted cells and zero hardcoded metrics.
 
 5. **📝 ACL-Format LaTeX Research Paper:**
    * Complete 8-page academic paper with 26 cited references in `report/acl_report.tex`.
@@ -77,7 +77,7 @@ This project implements all avenues for the **+2 Bonus Marks**:
 ## 📁 Repository Structure
 
 ```
-├── CFPB_Complaint_Classification_v2.ipynb  # Primary deliverable notebook (60 cells)
+├── CFPB_Complaint_Classification_v2.ipynb  # Primary deliverable notebook (62 cells)
 ├── README.md                               # Project documentation & benchmark summary
 ├── .gitignore                              # Git exclusions for large datasets/weights
 │

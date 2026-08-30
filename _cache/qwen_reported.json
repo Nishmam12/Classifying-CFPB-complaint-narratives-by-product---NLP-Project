@@ -1,0 +1,21 @@
+{
+  "model": "Qwen2.5-1.5B (LoRA r=16, alpha=32)",
+  "paradigm": "Causal Decoder SLM",
+  "source": "branch feat/cfpb-nlp-models-and-report @ fada7f1 (Shoumodip Paul)",
+  "verified_against_shared_protocol": false,
+  "reported": {
+    "test_accuracy": 0.8284,
+    "test_macro_f1": 0.7427,
+    "test_weighted_f1": 0.8345,
+    "ms_per_document": 62.16,
+    "trainable_params": 18480000,
+    "total_params": 1540000000
+  },
+  "protocol": {
+    "test_rows": 5000,
+    "test_rows_shared": 303213,
+    "train_rows": null,
+    "data_source": "separately prepared parquet split with its own label mapping"
+  },
+  "note": "Reported figures are carried over from the contributing branch, which did not commit a results artefact. They are shown with their protocol, not merged into the Section 12 table. pipeline/qwen_lora.py reruns this arm against the shared splits and writes qwen_lora_results.json."
+}
