@@ -254,7 +254,7 @@ function renderLeaderboard() {
             <div>
               <div style="font-weight:700; color:var(--text-pure); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 ${m.name}
-                ${m.isEnsemble ? '<span class="bonus-pill" style="padding:2px 8px; font-size:0.7rem;">PRO +2</span>' : ''}
+                ${m.isEnsemble ? '<span class="badge-tag" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.4);">TOP FUSION</span>' : ''}
                 ${m.isBestSingle ? '<span class="badge-tag" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4);">BEST ENCODER</span>' : ''}
                 ${m.isSLM ? '<span class="badge-tag" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4);">⭐ 1.54B LoRA SLM</span>' : ''}
               </div>

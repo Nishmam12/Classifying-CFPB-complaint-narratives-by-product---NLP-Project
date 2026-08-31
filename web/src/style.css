@@ -158,7 +158,7 @@ header.app-header {
   color: var(--emerald-green);
 }
 
-.bonus-pill {
+.accent-pill {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;

@@ -29,13 +29,13 @@
         <a href="#playground" class="nav-link">Live Classifier</a>
         <a href="#benchmarks" class="nav-link">Leaderboard (11)</a>
         <a href="#slm-showcase" class="nav-link">Qwen2.5 SLM</a>
-        <a href="#ensemble" class="nav-link">Ensemble (+2)</a>
+        <a href="#ensemble" class="nav-link">Ensemble Fusion</a>
         <a href="#ablation" class="nav-link">Ablations</a>
         <a href="#gallery" class="nav-link">Diagnostic Gallery</a>
         <a href="#deliverables" class="nav-link">Deliverables</a>
       </nav>
 
-      <span class="bonus-pill">⚡ PRO +2 BONUS</span>
+      <span class="accent-pill">⚡ NLP SUITE</span>
     </div>
   </header>
 
@@ -277,13 +277,13 @@
     </section>
 
     <!-- =========================================================================
-         Ensemble Innovation (+2 Bonus)
+         Ensemble Innovation (Orthogonal Fusion)
          ========================================================================= -->
     <section id="ensemble" class="app-section">
       <div class="app-container">
         <div class="section-heading">
-          <span class="section-tag" style="color:var(--amber-gold);">Bonus Requirement #3</span>
-          <h2>Ensemble Model: Orthogonal Fusion (+2 Bonus)</h2>
+          <span class="section-tag" style="color:var(--amber-gold);">Model Fusion Architecture</span>
+          <h2>Ensemble Model: Orthogonal Fusion</h2>
           <p>Soft-voting blend combining transformer contextual syntax with sparse linear n-gram features outperforms every standalone architecture.</p>
         </div>
 
@@ -296,7 +296,7 @@
                 Formula: <code>P(c) = w · P<sub>BERT</sub>(c) + (1 - w) · P<sub>LR</sub>(c)</code>. Adjust the blend ratio to evaluate live prediction calibration.
               </p>
             </div>
-            <div id="blend-badge" class="bonus-pill" style="font-size:0.85rem;">
+            <div id="blend-badge" class="accent-pill" style="font-size:0.85rem;">
               Current Blend: 75% BERT + 25% LR
             </div>
           </div>
@@ -339,7 +339,7 @@
     <section id="ablation" class="app-section">
       <div class="app-container">
         <div class="section-heading">
-          <span class="section-tag" style="color:var(--cyan-sky);">Bonus Requirement #4</span>
+          <span class="section-tag" style="color:var(--cyan-sky);">Novelty Investigation</span>
           <h2>13-Run Imbalance Strategy Matrix</h2>
           <p>Controlled study of Natural Prior vs Class Weighting vs SMOTE vs Focal Loss across 5 distinct paradigms.</p>
         </div>
