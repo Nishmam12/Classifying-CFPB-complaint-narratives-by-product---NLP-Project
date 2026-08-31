@@ -166,11 +166,11 @@ function renderResults(result) {
       <div class="winner-box" style="border-color:${topClass.color}50; background:${topClass.color}15;">
         <div>
           <span class="winner-subtitle" style="color:${topClass.color};">
-            <span>${topClass.icon || '🏆'}</span> Top-1 Predicted Product
+            <span>${topClass.icon || '🏆'}</span> Top-1 Predicted Product Category
           </span>
           <h4 class="winner-class-name">${topClass.className}</h4>
-          <span style="font-size:0.8rem; color:var(--text-muted);">
-            Architecture: <strong style="color:var(--text-pure);">${modelName}</strong> • Latency: <strong style="font-family:var(--font-mono); color:var(--emerald-green);">${latencyMs} ms</strong>
+          <span style="font-size:0.82rem; color:var(--text-muted);">
+            Architecture: <strong style="color:var(--text-pure);">${modelName}</strong> • Inference: <strong style="font-family:var(--font-mono); color:var(--emerald-green);">${latencyMs} ms</strong>
           </span>
         </div>
         <div>
@@ -218,28 +218,47 @@ function renderLeaderboard() {
 
   const filtered = currentLeaderboardFilter === 'all'
     ? BENCHMARK_MODELS
-    : BENCHMARK_MODELS.filter(m => m.paradigm.toLowerCase() === currentLeaderboardFilter.toLowerCase());
+    : BENCHMARK_MODELS.filter(m => {
+        const p = m.paradigm.toLowerCase();
+        const f = currentLeaderboardFilter.toLowerCase();
+        if (f.includes('transformer') || f.includes('slm') || f.includes('encoder') || f.includes('decoder')) {
+          return p.includes('transformer') || p.includes('encoder') || p.includes('decoder') || p.includes('slm');
+        }
+        if (f.includes('recurrent')) {
+          return p.includes('recurrent');
+        }
+        if (f.includes('classical')) {
+          return p.includes('classical');
+        }
+        if (f.includes('ensemble')) {
+          return p.includes('ensemble');
+        }
+        return p === f;
+      });
 
   tbody.innerHTML = filtered.map((m, idx) => {
     let rankBadge = `<span class="rank-circle">${idx + 1}</span>`;
     if (m.isEnsemble) rankBadge = `<span class="rank-circle rank-1">1</span>`;
     else if (m.isBestSingle) rankBadge = `<span class="rank-circle rank-2">2</span>`;
+    else if (m.isSLM) rankBadge = `<span class="rank-circle rank-3">3</span>`;
     else if (idx === 2) rankBadge = `<span class="rank-circle rank-3">3</span>`;
 
     const f1Pct = (m.macroF1 * 100).toFixed(1);
     const accPct = (m.accuracy * 100).toFixed(1);
 
     return `
-      <tr class="${m.isEnsemble ? 'highlight-top' : ''}">
+      <tr class="${m.isEnsemble ? 'highlight-top' : (m.isSLM ? 'highlight-slm' : '')}">
         <td>
           <div style="display:flex; align-items:center;">
             ${rankBadge}
             <div>
-              <div style="font-weight:700; color:var(--text-pure); display:flex; align-items:center; gap:6px;">
+              <div style="font-weight:700; color:var(--text-pure); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 ${m.name}
                 ${m.isEnsemble ? '<span class="bonus-pill" style="padding:2px 8px; font-size:0.7rem;">PRO +2</span>' : ''}
+                ${m.isBestSingle ? '<span class="badge-tag" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4);">BEST ENCODER</span>' : ''}
+                ${m.isSLM ? '<span class="badge-tag" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4);">⭐ 1.54B LoRA SLM</span>' : ''}
               </div>
-              <small style="font-size:0.75rem; color:var(--text-dim);">${m.config}</small>
+              <small style="font-size:0.75rem; color:var(--text-dim); display:block; margin-top:2px;">${m.config}</small>
             </div>
           </div>
         </td>
@@ -266,7 +285,7 @@ function renderLeaderboard() {
         </td>
         <td><span style="font-family:var(--font-mono); font-size:0.88rem;">${(m.weightedF1 * 100).toFixed(2)}%</span></td>
         <td><span style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-dim);">${m.trainTime}</span></td>
-        <td><span style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-dim);">${m.inferTime}</span></td>
+        <td><span style="font-family:var(--font-mono); font-size:0.82rem; color:var(--emerald-green); font-weight:600;">${m.inferTime}</span></td>
       </tr>
     `;
   }).join('');

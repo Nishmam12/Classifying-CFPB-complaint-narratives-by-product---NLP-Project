@@ -1133,6 +1133,82 @@ input[type=range].blend-slider::-webkit-slider-thumb:hover {
 }
 
 /* =========================================================================
+   SLM & Badge Highlight Enhancements
+   ========================================================================= */
+.highlight-slm {
+  background: rgba(245, 158, 11, 0.05) !important;
+  border-left: 3px solid var(--amber-gold) !important;
+}
+
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.slm-showcase-card {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(14, 18, 29, 0.85) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-md);
+  margin-top: 24px;
+}
+
+.slm-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .slm-grid-2col { grid-template-columns: 1fr; }
+}
+
+.deliverable-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: left;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.deliverable-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+.deliverable-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--emerald-green);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.deliverable-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* =========================================================================
    Academic Deliverables & Footer
    ========================================================================= */
 footer.app-footer {
@@ -1181,3 +1257,4 @@ footer.app-footer {
   .nav-links { display: none; }
   .app-nav { height: 64px; }
 }
+

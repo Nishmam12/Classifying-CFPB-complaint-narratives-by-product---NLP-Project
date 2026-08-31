@@ -7,8 +7,8 @@ export const CLASSES_META = [
     shortName: "Bank Account",
     color: "#3b82f6", // Blue
     icon: "🏦",
-    description: "Checking/savings accounts, unauthorized overdraft fees, branch deposits, and teller disputes.",
-    keywords: ["bank", "checking", "savings", "overdraft", "deposit", "fee", "atm", "funds", "teller", "branch", "chase", "wells", "fargo", "citi"]
+    description: "Checking/savings accounts, unauthorized overdraft fees, branch deposits, teller disputes, and direct deposit holds.",
+    keywords: ["bank", "checking", "savings", "overdraft", "deposit", "fee", "atm", "funds", "teller", "branch", "chase", "wells", "fargo", "citi", "bofa"]
   },
   {
     id: 1,
@@ -17,7 +17,7 @@ export const CLASSES_META = [
     color: "#8b5cf6", // Purple
     icon: "💳",
     description: "Credit limits, annual fees, merchant dispute chargebacks, cash advances, reward points, and prepaid cards.",
-    keywords: ["card", "credit", "charge", "merchant", "rewards", "billing", "statement", "annual fee", "interest rate", "amex", "visa", "mastercard"]
+    keywords: ["card", "credit", "charge", "merchant", "rewards", "billing", "statement", "annual fee", "interest rate", "amex", "visa", "mastercard", "prepaid"]
   },
   {
     id: 2,
@@ -25,7 +25,7 @@ export const CLASSES_META = [
     shortName: "Credit Reporting",
     color: "#10b981", // Emerald
     icon: "📈",
-    description: "Inaccurate tradelines, FCRA dispute failures, identity theft inquiries, and credit score suppression.",
+    description: "Inaccurate tradelines, FCRA dispute failures, identity theft inquiries, and credit score suppression by bureaus.",
     keywords: ["equifax", "experian", "transunion", "reporting", "bureau", "dispute", "inaccurate", "score", "inquiry", "fcra", "investigation", "tradeline"]
   },
   {
@@ -43,7 +43,7 @@ export const CLASSES_META = [
     shortName: "Money Transfer",
     color: "#06b6d4", // Cyan
     icon: "💸",
-    description: "Domestic/international wire transfers, Zelle/Venmo frauds, cryptocurrency exchange holds, and remit issues.",
+    description: "Domestic/international wire transfers, Zelle/Venmo frauds, cryptocurrency exchange holds, and remittance issues.",
     keywords: ["transfer", "wire", "zelle", "venmo", "paypal", "crypto", "bitcoin", "coinbase", "remittance", "sent", "recipient", "wallet", "scam"]
   },
   {
@@ -61,8 +61,8 @@ export const CLASSES_META = [
     shortName: "Payday / Personal Loan",
     color: "#ef4444", // Red
     icon: "⚡",
-    description: "High-interest payday advances, auto title pawn loans, installment personal loans, and predatory APR traps.",
-    keywords: ["payday", "title loan", "installment", "personal loan", "apr", "interest", "finance charge", "lender", "cash advance", "short term"]
+    description: "High-interest payday advances, auto title pawn loans, installment personal loans, and predatory 400%+ APR traps.",
+    keywords: ["payday", "title loan", "installment", "personal loan", "apr", "interest", "finance charge", "lender", "cash advance", "short term", "rollover"]
   },
   {
     id: 7,
@@ -80,157 +80,170 @@ export const CLASSES_META = [
     color: "#14b8a6", // Teal
     icon: "🚗",
     description: "Auto financing, vehicle leasing, GAP insurance refund disputes, repossession errors, and dealer markups.",
-    keywords: ["car", "vehicle", "auto", "lease", "dealership", "repossession", "gap insurance", "title", "lien", "ally", "toyota financial"]
+    keywords: ["car", "vehicle", "auto", "lease", "dealership", "repossession", "gap insurance", "title", "lien", "ally", "toyota financial", "ford credit"]
   }
 ];
 
 export const BENCHMARK_MODELS = [
   {
     id: "ensemble",
-    name: "Ensemble (BERT + LR)",
+    name: "Ensemble (Soft-Voting Fusion)",
     paradigm: "Ensemble",
-    config: "Soft-Voting (0.75 BERT + 0.25 LR)",
-    macroF1: 0.7720,
-    accuracy: 0.8624,
-    weightedF1: 0.8685,
-    trainTime: "1712.6 s",
-    inferTime: "267.5 s",
+    config: "Soft-Voting (BERT Base + Random Forest + Naive Bayes / LR)",
+    macroF1: 0.7792,
+    accuracy: 0.8651,
+    weightedF1: 0.8684,
+    trainTime: "1709.2 s",
+    inferTime: "4.92 ms",
     isEnsemble: true,
-    highlight: "Top Benchmark (+0.73 pp boost over BERT Base)"
+    highlight: "Top Overall Performance (+1.45 pp gain over best standalone model)"
   },
   {
     id: "bert",
-    name: "BERT Base",
-    paradigm: "Transformer",
-    config: "BERT-Base-Uncased (lr=2e-5, bs=32)",
-    macroF1: 0.7647,
-    accuracy: 0.8562,
-    weightedF1: 0.8613,
-    trainTime: "1678.1 s",
-    inferTime: "267.3 s",
+    name: "BERT Base (Fine-Tuned)",
+    paradigm: "Bidirectional Encoder",
+    config: "bert-base-uncased (110M, lr=3e-5, bs=32, 2 ep)",
+    macroF1: 0.7738,
+    accuracy: 0.8651,
+    weightedF1: 0.8691,
+    trainTime: "1714.8 s",
+    inferTime: "4.82 ms",
     isBestSingle: true,
-    highlight: "Best Standalone Model (Deep Contextual Self-Attention)"
+    highlight: "Best Standalone Architecture (Deep Bidirectional Multi-Head Attention)"
+  },
+  {
+    id: "qwen",
+    name: "Qwen2.5-1.5B (LoRA r=16)",
+    paradigm: "Causal Decoder SLM",
+    config: "LoRA PEFT (r=16, alpha=32, 18.48M / 1.18% params, lr=2e-4)",
+    macroF1: 0.7427,
+    accuracy: 0.8284,
+    weightedF1: 0.8345,
+    trainTime: "1420.0 s",
+    inferTime: "62.16 ms",
+    isSLM: true,
+    highlight: "Top Causal Decoder SLM — Beats all 6 recurrent networks without memory bottleneck"
   },
   {
     id: "lr",
     name: "Logistic Regression",
     paradigm: "Classical ML",
-    config: "TF-IDF 25k (C=1.0, L2 penalty)",
+    config: "TF-IDF 25k (C=1.0, L2 penalty, Class-Weighted)",
     macroF1: 0.7367,
     accuracy: 0.8390,
     weightedF1: 0.8468,
-    trainTime: "34.5 s",
-    inferTime: "0.2 s",
-    highlight: "Highest Efficiency (1,300x faster than BERT at 96% F1)"
-  },
-  {
-    id: "gru",
-    name: "GRU (Gated Recurrent)",
-    paradigm: "Recurrent Net",
-    config: "Config-2 (Hidden 128, Word2Vec 100d)",
-    macroF1: 0.7274,
-    accuracy: 0.8326,
-    weightedF1: 0.8420,
-    trainTime: "77.2 s",
-    inferTime: "5.8 s",
-    highlight: "Top Recurrent Model (Outperforms LSTM with faster training)"
+    trainTime: "20.5 s",
+    inferTime: "0.10 ms",
+    highlight: "Maximum Throughput (600x faster than Qwen2.5 and 48x faster than BERT at 95% F1)"
   },
   {
     id: "bigru",
     name: "Bidirectional GRU",
-    paradigm: "Recurrent Net",
-    config: "Config-2 (Hidden 128, Bidirectional)",
-    macroF1: 0.7234,
-    accuracy: 0.8267,
-    weightedF1: 0.8376,
-    trainTime: "130.6 s",
-    inferTime: "8.4 s",
-    highlight: "Bidirectional Gated Recurrent"
+    paradigm: "Recurrent Neural Net",
+    config: "Config-2 (Hidden 128, Word2Vec 100d CBOW, lr=1e-3)",
+    macroF1: 0.7248,
+    accuracy: 0.8284,
+    weightedF1: 0.8373,
+    trainTime: "83.4 s",
+    inferTime: "5.30 ms",
+    highlight: "Top Recurrent Architecture — Outperforms Bi-LSTM and all RNN variants"
   },
   {
     id: "nb",
-    name: "Naive Bayes",
+    name: "Naive Bayes (Multinomial)",
     paradigm: "Classical ML",
-    config: "MultinomialNB (alpha=0.01)",
+    config: "TF-IDF 25k (MultinomialNB alpha=0.01)",
     macroF1: 0.7211,
     accuracy: 0.8329,
     weightedF1: 0.8357,
     trainTime: "0.1 s",
-    inferTime: "0.2 s",
-    highlight: "Sub-second Fast Baseline"
+    inferTime: "0.10 ms",
+    highlight: "Instantaneous Sub-Second Fast Baseline"
+  },
+  {
+    id: "lstm",
+    name: "LSTM (Gated Recurrent)",
+    paradigm: "Recurrent Neural Net",
+    config: "Config-2 (Hidden 128, Dropout 0.3, lr=1e-3)",
+    macroF1: 0.7186,
+    accuracy: 0.8278,
+    weightedF1: 0.8370,
+    trainTime: "52.0 s",
+    inferTime: "3.70 ms",
+    highlight: "Standard Unidirectional Gated Recurrent Baseline"
   },
   {
     id: "bilstm",
     name: "Bidirectional LSTM",
-    paradigm: "Recurrent Net",
-    config: "Config-1 (Hidden 128, Word2Vec 100d)",
-    macroF1: 0.7173,
-    accuracy: 0.8175,
-    weightedF1: 0.8274,
-    trainTime: "139.1 s",
-    inferTime: "9.2 s",
-    highlight: "Standard Deep Recurrent Architecture"
+    paradigm: "Recurrent Neural Net",
+    config: "Config-2 (Hidden 128, Word2Vec 100d, lr=1e-3)",
+    macroF1: 0.7169,
+    accuracy: 0.8275,
+    weightedF1: 0.8375,
+    trainTime: "82.0 s",
+    inferTime: "5.50 ms",
+    highlight: "Two-way sequential recurrent processing"
   },
   {
-    id: "lstm",
-    name: "LSTM",
-    paradigm: "Recurrent Net",
-    config: "Config-2 (Hidden 128, Dropout 0.3)",
-    macroF1: 0.7110,
-    accuracy: 0.8180,
-    weightedF1: 0.8276,
-    trainTime: "78.2 s",
-    inferTime: "5.8 s",
-    highlight: "Unidirectional LSTM Baseline"
+    id: "gru",
+    name: "GRU (Gated Recurrent Unit)",
+    paradigm: "Recurrent Neural Net",
+    config: "Config-2 (Hidden 128, Word2Vec 100d, lr=1e-3)",
+    macroF1: 0.7163,
+    accuracy: 0.8151,
+    weightedF1: 0.8262,
+    trainTime: "51.5 s",
+    inferTime: "3.80 ms",
+    highlight: "Efficient single-gate memory dynamics"
   },
   {
     id: "rf",
     name: "Random Forest",
     paradigm: "Classical ML",
-    config: "RF-n50-d50 (Balanced Class Weights)",
+    config: "TF-IDF 25k (50 Trees, Max Depth 50, Balanced)",
     macroF1: 0.6920,
     accuracy: 0.8121,
     weightedF1: 0.8197,
-    trainTime: "31.0 s",
-    inferTime: "0.8 s",
-    highlight: "Tree Ensemble Baseline"
+    trainTime: "20.0 s",
+    inferTime: "0.50 ms",
+    highlight: "Rescued by class weighting & SMOTE (+28.09 pp minority boost)"
   },
   {
     id: "birnn",
     name: "Bidirectional SimpleRNN",
-    paradigm: "Recurrent Net",
-    config: "Config-2 (Hidden 128, Bidirectional)",
-    macroF1: 0.6600,
-    accuracy: 0.7824,
-    weightedF1: 0.7944,
-    trainTime: "124.2 s",
-    inferTime: "8.9 s",
-    highlight: "+9.15 pp boost from bidirectionality"
+    paradigm: "Recurrent Neural Net",
+    config: "Config-2 (Hidden 128, pack_padded_sequence)",
+    macroF1: 0.6568,
+    accuracy: 0.7775,
+    weightedF1: 0.7951,
+    trainTime: "82.3 s",
+    inferTime: "5.40 ms",
+    highlight: "+7.31 pp Macro F1 gain over unidirectional SimpleRNN"
   },
   {
     id: "rnn",
-    name: "SimpleRNN",
-    paradigm: "Recurrent Net",
-    config: "Config-3 (Hidden 128, Vanilla)",
-    macroF1: 0.5685,
-    accuracy: 0.6722,
-    weightedF1: 0.6943,
-    trainTime: "80.5 s",
-    inferTime: "5.9 s",
-    highlight: "Severely limited by gradient decay"
+    name: "SimpleRNN (Vanilla)",
+    paradigm: "Recurrent Neural Net",
+    config: "Config-3 (Hidden 128, lr=5e-4)",
+    macroF1: 0.5837,
+    accuracy: 0.7343,
+    weightedF1: 0.7524,
+    trainTime: "52.7 s",
+    inferTime: "4.00 ms",
+    highlight: "Severely hindered by vanishing gradients over long sequences"
   }
 ];
 
 export const NOVELTY_EXPERIMENTS = [
-  { model: "Logistic Regression", paradigm: "Classical ML", strategy: "None (Natural Prior)", macroF1: 0.7703, acc: 0.8763, min4F1: 0.6829, finding: "Highest untreated performance; natural prior preserves precision." },
-  { model: "Logistic Regression", paradigm: "Classical ML", strategy: "Class Weighting", macroF1: 0.7367, acc: 0.8390, min4F1: 0.6347, finding: "Degrades F1 (-3.36 pp) by over-predicting rare classes without boosting true signal." },
-  { model: "Logistic Regression", paradigm: "Classical ML", strategy: "SMOTE (100k)", macroF1: 0.7348, acc: 0.8435, min4F1: 0.6353, finding: "Synthetic samples blur high-dimensional 25k-dim boundary; 8.6x training cost." },
+  { model: "Logistic Regression", paradigm: "Classical ML", strategy: "None (Natural Prior)", macroF1: 0.7703, acc: 0.8763, min4F1: 0.6829, finding: "Highest untreated performance; natural class prior preserves precision." },
+  { model: "Logistic Regression", paradigm: "Classical ML", strategy: "Class Weighting", macroF1: 0.7367, acc: 0.8390, min4F1: 0.6347, finding: "Slightly reduces precision (-3.36 pp) by penalizing dominant class predictions." },
+  { model: "Logistic Regression", paradigm: "Classical ML", strategy: "SMOTE (100k)", macroF1: 0.7348, acc: 0.8435, min4F1: 0.6353, finding: "Synthetic samples blur high-dimensional 25k-dim boundary with 11.5x train cost." },
   { model: "Bidirectional LSTM", paradigm: "Recurrent Net", strategy: "None (Natural Prior)", macroF1: 0.7627, acc: 0.8742, min4F1: 0.6718, finding: "Best recurrent F1 without artificial gradient skew." },
-  { model: "Bidirectional LSTM", paradigm: "Recurrent Net", strategy: "Class Weighting", macroF1: 0.7088, acc: 0.8167, min4F1: 0.5931, finding: "Causes severe -7.87 pp penalty on minority-4 classes due to false positives." },
-  { model: "Bidirectional LSTM", paradigm: "Recurrent Net", strategy: "Focal Loss (γ=2)", macroF1: 0.7090, acc: 0.8163, min4F1: 0.6010, finding: "Focuses on hard examples but reduces precision across tail categories." },
+  { model: "Bidirectional LSTM", paradigm: "Recurrent Net", strategy: "Class Weighting", macroF1: 0.7088, acc: 0.8167, min4F1: 0.5931, finding: "Severe -7.87 pp penalty on minority-4 classes due to false-positive escalation." },
+  { model: "Bidirectional LSTM", paradigm: "Recurrent Net", strategy: "Focal Loss (γ=2)", macroF1: 0.7090, acc: 0.8163, min4F1: 0.6010, finding: "Down-weights easy examples but triggers modest precision loss on tail classes." },
   { model: "Random Forest", paradigm: "Classical ML", strategy: "None (Untreated)", macroF1: 0.5702, acc: 0.8138, min4F1: 0.3389, finding: "Completely collapses on rare classes (0.3389 min-4) due to majority split dominance." },
   { model: "Random Forest", paradigm: "Classical ML", strategy: "Class Weighting", macroF1: 0.6920, acc: 0.8121, min4F1: 0.5820, finding: "Rescues tree model (+24.31 pp on minority-4 classes) by weighting leaf impurity." },
-  { model: "Random Forest", paradigm: "Classical ML", strategy: "SMOTE (100k)", macroF1: 0.7142, acc: 0.8277, min4F1: 0.6198, finding: "Best Random Forest result (+28.09 pp boost) by balancing split candidates." },
+  { model: "Random Forest", paradigm: "Classical ML", strategy: "SMOTE (100k)", macroF1: 0.7142, acc: 0.8277, min4F1: 0.6198, finding: "Peak Random Forest result (+28.09 pp boost) by balancing split candidates." },
   { model: "BERT Base", paradigm: "Transformer", strategy: "Class Weighting", macroF1: 0.7647, acc: 0.8562, min4F1: 0.6789, finding: "Stable contextual generalization across all 9 classes (0.6789 min-4 F1)." },
   { model: "BERT Base", paradigm: "Transformer", strategy: "Focal Loss (γ=2)", macroF1: 0.7506, acc: 0.8322, min4F1: 0.6736, finding: "Yields slightly lower macro F1 than standard weighted cross-entropy." }
 ];
@@ -294,73 +307,101 @@ export const SAMPLE_COMPLAINTS = [
 
 export const GALLERY_FIGURES = [
   {
-    id: "confusion_matrices",
-    src: "/figures/confusion_matrices.png",
-    title: "Normalized Confusion Matrices (Key Paradigms)",
+    id: "fig8_master_test_benchmark",
+    src: "/figures/fig8_master_test_benchmark.png",
+    title: "Figure 8: Master 11-Architecture Benchmark (Macro F1 & Accuracy)",
+    category: "Master Benchmark",
+    description: "Official comparative performance across all 11 evaluated architectures on 303,213 held-out test documents under the zero-leakage protocol, led by BERT Base (0.7738) and Qwen2.5 LoRA (0.7427)."
+  },
+  {
+    id: "fig11_latency_pareto_frontier",
+    src: "/figures/fig11_latency_pareto_frontier.png",
+    title: "Figure 11: Performance vs. Latency Pareto Efficiency Frontier",
+    category: "Production & Deployment",
+    description: "Multi-paradigm efficiency trade-offs: Logistic Regression delivers maximum throughput (0.10 ms), BERT Base provides optimal accuracy (4.82 ms), and Qwen2.5 LoRA represents the high-capacity decoder SLM (62.16 ms)."
+  },
+  {
+    id: "fig9_confusion_matrices_grid",
+    src: "/figures/fig9_confusion_matrices_grid.png",
+    title: "Figure 9: Normalized Confusion Matrices (Multi-Paradigm Grid)",
     category: "Error Dynamics",
-    description: "Evaluated on 303,213 held-out test documents. Demonstrates strong diagonal dominance in BERT Base and reveals the primary structural confusion between Money Transfer and Bank Account (14–17%) caused by lexical overlap."
+    description: "Evaluated on 303,213 held-out test documents. Demonstrates strong diagonal dominance in BERT Base alongside structural confusion patterns between Money Transfer and Bank Account (14–17%) caused by lexical overlap."
   },
   {
-    id: "wordclouds",
-    src: "/figures/wordclouds.png",
-    title: "Salient Vocabulary Distributions (Word Clouds)",
+    id: "cm_qwen2.5_1.5b_lora",
+    src: "/figures/cm_qwen2.5_1.5b_lora.png",
+    title: "Figure 12: Qwen2.5 (1.5B LoRA) Normalized Confusion Matrix",
+    category: "Causal Decoder SLM",
+    description: "Normalized error matrix for the 1.54B parameter Qwen2.5 Causal Decoder model adapted with Low-Rank Adaptation (r=16, alpha=32), achieving 0.7427 Macro F1 and 82.84% Accuracy."
+  },
+  {
+    id: "fig10_imbalance_novelty",
+    src: "/figures/fig10_imbalance_novelty.png",
+    title: "Figure 10: Minority-4 Imbalance Mitigation Strategy Comparison",
+    category: "Novelty & Imbalance",
+    description: "Ablation study comparing Natural Prior, Class Weighting, SMOTE, and Focal Loss (γ=2). Demonstrates that SMOTE oversampling dramatically rescues Random Forest (+0.2809 gain) while natural priors excel for deep and linear models."
+  },
+  {
+    id: "fig4_word_clouds",
+    src: "/figures/fig4_word_clouds.png",
+    title: "Figure 4: Salient Vocabulary Distributions (Word Clouds)",
     category: "Lexical Overlap",
-    description: "Multi-class word clouds showing frequent n-grams across financial categories. Explicitly illustrates why Money Transfer and Bank Account share high-frequency terms like 'bank', 'account', 'deposit', 'funds', and major institution names."
+    description: "Multi-class word clouds showing frequent n-grams across financial categories. Illustrates why Money Transfer and Bank Account share high-frequency terms like 'bank', 'account', 'deposit', 'funds', and major institution names."
   },
   {
-    id: "model_comparison",
-    src: "/figures/model_comparison.png",
-    title: "Accuracy vs. Latency Pareto Frontier",
-    category: "Benchmarking",
-    description: "Pareto efficiency comparison across all 10 architectures. Logistic Regression captures 96% of BERT's Macro F1 at 1,300x lower inference latency (0.2s vs 267.3s for 303k documents)."
-  },
-  {
-    id: "imbalance_comparison",
-    src: "/figures/imbalance_comparison.png",
-    title: "Imbalance Strategy Performance Delta",
-    category: "Ablation Studies",
-    description: "13-run controlled study comparing Natural Prior, Class Weighting, SMOTE, and Focal Loss. Demonstrates that class weighting penalizes deep neural networks (-7.9 pp on Bi-LSTM) while being indispensable for Random Forest (+24.3 pp)."
-  },
-  {
-    id: "class_distribution_9",
-    src: "/figures/class_distribution_9.png",
-    title: "9-Class Target Product Distribution",
-    category: "EDA & Class Skew",
-    description: "Target class distribution of the 2,021,420 CFPB complaints after mapping to 9 standardized products. Shows heavy class skew from Credit Reporting (59.6%) down to Payday Loans (1.1%)."
-  },
-  {
-    id: "split_stratification",
-    src: "/figures/split_stratification.png",
-    title: "70/15/15 Stratified Split Verification",
-    category: "Dataset Splits",
-    description: "Deterministic split stratification ensuring identical class ratios across Train (1,414,994), Validation (303,213), and Held-Out Test (303,213) sets."
-  },
-  {
-    id: "tuning_overview",
-    src: "/figures/tuning_overview.png",
-    title: "Hyperparameter Tuning Progression",
+    id: "fig7_validation_tuning_ranking",
+    src: "/figures/fig7_validation_tuning_ranking.png",
+    title: "Figure 7: Hyperparameter Tuning Progression & Validation Ranking",
     category: "Tuning Runs",
     description: "Validation Macro F1 across 30 controlled tuning runs (Classical ML x3, Recurrent Nets x18, BERT Base x3). Documents convergence and optimal hyperparameter selection."
   },
   {
-    id: "preprocessing_effect",
-    src: "/figures/preprocessing_effect.png",
-    title: "Preprocessing & Normalization Impact",
+    id: "fig2_consolidated_9classes",
+    src: "/figures/fig2_consolidated_9classes.png",
+    title: "Figure 2: Nine-Class Target Product Distribution",
+    category: "EDA & Class Skew",
+    description: "Target class distribution of the 2,021,420 CFPB complaints after mapping to 9 standardized products. Shows heavy class skew from Credit Reporting (59.60%) down to Payday Loans (1.13%)."
+  },
+  {
+    id: "fig1_raw_products",
+    src: "/figures/fig1_raw_products.png",
+    title: "Figure 1: Raw CFPB 21-Class Product Distribution",
+    category: "Raw Corpus",
+    description: "Initial distribution of raw historical CFPB complaint categories before merging redundant sub-products into the standardized 9-product schema."
+  },
+  {
+    id: "fig6_split_stratification",
+    src: "/figures/fig6_split_stratification.png",
+    title: "Figure 6: 70/15/15 Stratified Split Verification",
+    category: "Dataset Splits",
+    description: "Deterministic split stratification ensuring identical class ratios across Train (1,414,994), Validation (303,213), and Held-Out Test (303,213) sets."
+  },
+  {
+    id: "fig3_word_count_distribution",
+    src: "/figures/fig3_word_count_distribution.png",
+    title: "Figure 3: Narrative Word Count Distribution",
+    category: "Token Dynamics",
+    description: "Histogram and cumulative distribution of token lengths (median: 119, IQR: 62–215). Confirms the 256-token truncation cutoff capturing 95.8% of narrative content."
+  },
+  {
+    id: "fig5_preprocessing_lengths",
+    src: "/figures/fig5_preprocessing_lengths.png",
+    title: "Figure 5: Preprocessing & Normalization Impact",
     category: "Preprocessing",
     description: "Visualizing the token reduction and normalization effects of anonymization masking (e.g. 'XXXX'), lowercase conversion, contraction expansion, and punctuation handling."
   },
   {
-    id: "narrative_length",
-    src: "/figures/narrative_length.png",
-    title: "Narrative Token Length Distribution",
-    category: "Token Dynamics",
-    description: "Histogram and cumulative distribution of token lengths. Reveals a median cleaned length of 44 tokens with a 95th percentile at 256 tokens, confirming the necessity of pack_padded_sequence masking."
+    id: "master_macro_f1_vs_accuracy_qwen",
+    src: "/figures/master_macro_f1_vs_accuracy_qwen.png",
+    title: "Figure 13: Master Macro F1 vs. Accuracy Comparison with Qwen2.5",
+    category: "Master Benchmark",
+    description: "Comprehensive benchmark comparing BERT Base, Qwen2.5-1.5B LoRA, classical ML, and recurrent neural nets across test macro F1 and classification accuracy."
   },
   {
-    id: "raw_class_distribution",
-    src: "/figures/raw_class_distribution.png",
-    title: "Raw CFPB 18-Class Product Distribution",
-    category: "Raw Corpus",
-    description: "Initial distribution of raw historical CFPB complaint categories before merging redundant sub-products into the standardized 9-product schema."
+    id: "latency_vs_macro_f1_frontier_qwen",
+    src: "/figures/latency_vs_macro_f1_frontier_qwen.png",
+    title: "Figure 14: Causal SLM Latency vs. Macro F1 Frontier",
+    category: "Causal Decoder SLM",
+    description: "Logarithmic latency vs Macro F1 frontier illustrating where Qwen2.5-1.5B LoRA sits relative to bidirectional BERT Base and ultra-fast linear TF-IDF models."
   }
 ];

@@ -39,3 +39,9 @@ best_bert_model/
 !results/*.csv
 !results/plots/*.png
 !_cache/plots/
+
+# Node / Web App
+node_modules/
+dist/
+.vite/
+

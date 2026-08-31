@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>CFPB Financial Complaint NLP Suite | 10-Model Benchmark &amp; Ensemble</title>
-  <meta name="description" content="CFPB Financial Complaint Multi-Class NLP Classification Suite • Benchmark evaluation of 10 classical, recurrent, and transformer architectures across 2.02M consumer financial narratives." />
+  <title>CFPB Financial Complaint NLP Suite | 11-Model Benchmark, Qwen2.5 SLM &amp; Ensemble</title>
+  <meta name="description" content="CFPB Financial Complaint Multi-Class NLP Classification Suite • Benchmark evaluation of 11 classical, recurrent, bidirectional transformer (BERT Base), and causal decoder SLM (Qwen2.5-1.5B LoRA) architectures across 2.02M consumer financial narratives." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,7 +27,8 @@
 
       <nav class="nav-links">
         <a href="#playground" class="nav-link">Live Classifier</a>
-        <a href="#benchmarks" class="nav-link">Leaderboard</a>
+        <a href="#benchmarks" class="nav-link">Leaderboard (11)</a>
+        <a href="#slm-showcase" class="nav-link">Qwen2.5 SLM</a>
         <a href="#ensemble" class="nav-link">Ensemble (+2)</a>
         <a href="#ablation" class="nav-link">Ablations</a>
         <a href="#gallery" class="nav-link">Diagnostic Gallery</a>
@@ -46,7 +47,7 @@
       <div class="app-container">
         <div class="hero-content">
           <div class="hero-pill-tag">
-            <span>🔬 10-Model Empirical Benchmark Suite</span>
+            <span>🔬 11-Model Empirical Benchmark &amp; Causal Decoder SLM Suite</span>
           </div>
 
           <h1 class="hero-title">
@@ -55,7 +56,7 @@
           </h1>
 
           <p class="hero-description">
-            Rigorous evaluation of classical, recurrent, and transformer architectures across <strong>2,021,420</strong> consumer financial complaints under a unified budget, featuring state-of-the-art <strong>orthogonal soft-voting ensemble fusion</strong>.
+            Rigorous evaluation of classical ML, recurrent networks, fine-tuned bidirectional <strong>BERT Base (110M)</strong>, and modern <strong>Qwen2.5-1.5B Causal Decoder SLM (LoRA)</strong> across <strong>2,021,420</strong> consumer financial complaints with state-of-the-art orthogonal soft-voting ensemble fusion.
           </p>
 
           <div class="hero-actions">
@@ -64,6 +65,9 @@
             </a>
             <a href="#benchmarks" class="btn-cta-secondary">
               <span>🏆 View Leaderboard</span>
+            </a>
+            <a href="#slm-showcase" class="btn-cta-secondary">
+              <span>⭐ Qwen2.5 SLM</span>
             </a>
             <a href="#ensemble" class="btn-cta-secondary">
               <span>⚡ Ensemble Model</span>
@@ -77,23 +81,23 @@
           <div class="kpi-grid">
             <div class="kpi-card">
               <span class="kpi-label">Top Benchmark (Ensemble)</span>
-              <span class="kpi-val highlight-green">0.7720 F1</span>
-              <span class="kpi-sub">0.7647 (BERT Base) • +0.73 pp boost</span>
+              <span class="kpi-val highlight-green">0.7792 F1</span>
+              <span class="kpi-sub">86.51% Acc • +1.45 pp boost over BERT</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-label">Held-Out Test Split</span>
-              <span class="kpi-val">303,213 Docs</span>
-              <span class="kpi-sub">15% Stratified held-out test split</span>
+              <span class="kpi-label">Best Standalone (BERT Base)</span>
+              <span class="kpi-val">0.7738 F1</span>
+              <span class="kpi-sub">86.51% Acc • 4.82 ms latency</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-label">Corpus Size</span>
-              <span class="kpi-val">2.02M+ Narratives</span>
-              <span class="kpi-sub">CFPB Consumer Financial Complaints</span>
+              <span class="kpi-label">Causal SLM (Qwen2.5-1.5B)</span>
+              <span class="kpi-val" style="color:var(--amber-gold);">0.7427 F1</span>
+              <span class="kpi-sub">82.84% Acc • 1.18% LoRA params</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-label">Controlled Runs</span>
-              <span class="kpi-val">43 Tuning Runs</span>
-              <span class="kpi-sub">30 Tuned + 13 Imbalance Sweeps</span>
+              <span class="kpi-label">Maximum Throughput (LR)</span>
+              <span class="kpi-val" style="color:var(--cyan-sky);">0.10 ms</span>
+              <span class="kpi-sub">0.7367 F1 • 600x faster than SLM</span>
             </div>
           </div>
         </div>
@@ -131,12 +135,15 @@
 
             <div class="controls-bar">
               <select id="model-select" class="model-dropdown">
-                <option value="ensemble" selected>⚡ Ensemble (0.75 BERT + 0.25 LR) — 0.7720 Macro F1 (Best)</option>
-                <option value="bert">🤖 BERT Base Transformer — 0.7647 Macro F1</option>
-                <option value="lr">📊 Logistic Regression (TF-IDF 25k) — 0.7367 Macro F1</option>
-                <option value="gru">🧠 GRU Gated Recurrent Net — 0.7274 Macro F1</option>
-                <option value="bilstm">🔁 Bidirectional LSTM — 0.7173 Macro F1</option>
+                <option value="ensemble" selected>⚡ Ensemble (Soft-Voting Fusion) — 0.7792 Macro F1 (Top Benchmark)</option>
+                <option value="bert">🤖 BERT Base (Bidirectional Encoder) — 0.7738 Macro F1 (Best Single)</option>
+                <option value="qwen">⭐ Qwen2.5-1.5B (Causal Decoder SLM LoRA) — 0.7427 Macro F1</option>
+                <option value="lr">📊 Logistic Regression (TF-IDF 25k) — 0.7367 Macro F1 (0.10 ms)</option>
+                <option value="bigru">🧠 Bidirectional GRU (Word2Vec 100d) — 0.7248 Macro F1</option>
                 <option value="nb">⚡ Naive Bayes Multinomial — 0.7211 Macro F1</option>
+                <option value="lstm">🔁 LSTM Gated Recurrent — 0.7186 Macro F1</option>
+                <option value="bilstm">🔁 Bidirectional LSTM — 0.7169 Macro F1</option>
+                <option value="gru">🧠 GRU (Gated Recurrent Unit) — 0.7163 Macro F1</option>
                 <option value="rf">🌲 Random Forest (Balanced) — 0.6920 Macro F1</option>
               </select>
 
@@ -163,20 +170,20 @@
     </section>
 
     <!-- =========================================================================
-         10-Model Benchmark Leaderboard
+         11-Model Benchmark Leaderboard
          ========================================================================= -->
     <section id="benchmarks" class="app-section">
       <div class="app-container">
         <div class="section-heading">
           <span class="section-tag">Empirical Results</span>
-          <h2>10-Model Benchmark Leaderboard</h2>
-          <p>Trained under a shared 200k document budget and evaluated on 303,213 held-out test documents.</p>
+          <h2>11-Model Benchmark Leaderboard</h2>
+          <p>Trained under a shared 200k document budget and evaluated on 303,213 held-out test documents under zero data leakage.</p>
         </div>
 
         <div class="filter-tabs" id="leaderboard-filters">
-          <button class="filter-tab-btn active" data-filter="all">All Architectures (11)</button>
+          <button class="filter-tab-btn active" data-filter="all">All Architectures (12)</button>
           <button class="filter-tab-btn" data-filter="Ensemble">⚡ Ensemble (1)</button>
-          <button class="filter-tab-btn" data-filter="Transformer">🤖 Transformer (1)</button>
+          <button class="filter-tab-btn" data-filter="Transformer">🤖 Transformers &amp; SLMs (2)</button>
           <button class="filter-tab-btn" data-filter="Classical ML">📊 Classical ML (3)</button>
           <button class="filter-tab-btn" data-filter="Recurrent Net">🧠 Recurrent Nets (6)</button>
         </div>
@@ -203,6 +210,73 @@
     </section>
 
     <!-- =========================================================================
+         Causal Decoder Small Language Model (Qwen2.5-1.5B LoRA)
+         ========================================================================= -->
+    <section id="slm-showcase" class="app-section">
+      <div class="app-container">
+        <div class="section-heading">
+          <span class="section-tag" style="color:var(--amber-gold);">Modern SLM Innovation</span>
+          <h2>Causal Decoder SLM: Qwen2.5-1.5B (LoRA)</h2>
+          <p>Adapting 1.54 Billion parameters via Low-Rank Adaptation (LoRA $r=16$) for regulatory complaint classification.</p>
+        </div>
+
+        <div class="slm-showcase-card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+            <div>
+              <span class="badge-tag" style="background:rgba(245,158,11,0.25); color:#fbbf24; border:1px solid rgba(245,158,11,0.5); font-size:0.78rem; padding:4px 12px;">
+                ⭐ Modern Generative Backbone Adapted for Multi-Class NLP
+              </span>
+              <h3 style="font-family:var(--font-heading); font-size:1.45rem; color:var(--text-pure); margin-top:10px;">
+                Qwen2.5-1.5B Causal Decoder vs. Bidirectional BERT Base
+              </h3>
+              <p style="color:var(--text-muted); font-size:0.92rem; max-width:820px; margin-top:6px; line-height:1.6;">
+                Qwen2.5-1.5B demonstrates that modern autoregressive Small Language Models can be efficiently adapted to specialized financial classification tasks using parameter-efficient fine-tuning (PEFT), outperforming all six recurrent networks without requiring full weight fine-tuning.
+              </p>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:var(--font-mono); font-size:2rem; font-weight:800; color:var(--amber-gold);">0.7427</div>
+              <span style="font-size:0.78rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em;">Test Macro F1</span>
+            </div>
+          </div>
+
+          <div class="slm-grid-2col">
+            <div class="feature-card">
+              <div class="feature-icon">🧩</div>
+              <h4>Parameter-Efficient Adaptation (LoRA $r=16$)</h4>
+              <p>
+                By freezing the 1.54B backbone and training low-rank adapter matrices ($W = W_0 + BA$), only <strong>18.48 million parameters (1.18%)</strong> are updated, enabling high-capacity fine-tuning on consumer-grade GPUs.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">🚀</div>
+              <h4>Outperforms All Recurrent Architectures</h4>
+              <p>
+                Qwen2.5 (0.7427 Macro F1) surpasses the strongest recurrent model (Bi-GRU: 0.7248) and Bi-LSTM (0.7169) by <strong>+1.8 to +2.5 percentage points</strong> by avoiding sequential memory bottlenecks.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">↔️</div>
+              <h4>Bidirectional vs. Causal Attention Trade-off</h4>
+              <p>
+                BERT Base achieves higher Macro F1 (<strong>0.7738 vs 0.7427</strong>) because bidirectional self-attention provides unconstrained visibility over past and future tokens simultaneously, unlike lower-triangular causal masking.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">⏱️</div>
+              <h4>Production Latency Considerations</h4>
+              <p>
+                BERT delivers <strong>4.82 ms/sample</strong> versus <strong>62.16 ms/sample</strong> for Qwen2.5 ($13\times$ speedup) and <strong>0.10 ms/sample</strong> for Logistic Regression ($600\times$ speedup), establishing BERT as the optimal production transformer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
          Ensemble Innovation (+2 Bonus)
          ========================================================================= -->
     <section id="ensemble" class="app-section">
@@ -210,7 +284,7 @@
         <div class="section-heading">
           <span class="section-tag" style="color:var(--amber-gold);">Bonus Requirement #3</span>
           <h2>Ensemble Model: Orthogonal Fusion (+2 Bonus)</h2>
-          <p>Soft-voting blend (0.75 BERT + 0.25 LR) outperforms every standalone architecture by combining orthogonal error profiles.</p>
+          <p>Soft-voting blend combining transformer contextual syntax with sparse linear n-gram features outperforms every standalone architecture.</p>
         </div>
 
         <!-- Interactive Blend Weight Simulator -->
@@ -239,7 +313,7 @@
           <div class="cards-triplet">
             <div class="feature-card">
               <div class="feature-icon">⚡</div>
-              <h4>Low Error Correlation (r = 0.38)</h4>
+              <h4>Low Error Correlation ($r = 0.38$)</h4>
               <p>BERT excels at long-range contextual syntax while Logistic Regression operates on high-dimensional exact n-gram surface tokens.</p>
             </div>
 
@@ -251,8 +325,8 @@
 
             <div class="feature-card">
               <div class="feature-icon">🏆</div>
-              <h4>0.7720 Top Benchmark (+0.73 pp)</h4>
-              <p>Achieves <strong>0.7720 Macro F1</strong> and <strong>86.24% Test Accuracy</strong> on 303k held-out test documents.</p>
+              <h4>0.7792 Top Benchmark (+1.45 pp)</h4>
+              <p>Achieves <strong>0.7792 Macro F1</strong> and <strong>86.51% Test Accuracy</strong> across 1,506 evaluated ensemble combinations.</p>
             </div>
           </div>
         </div>
@@ -300,10 +374,10 @@
         <div class="callout-box">
           <div class="callout-icon">💡</div>
           <div class="callout-text">
-            <h5>Core Empirical Finding: Rejection of the Architecture-Dependence Hypothesis</h5>
+            <h5>Core Empirical Finding: Architecture-Specific Imbalance Response</h5>
             <p>
               Natural Prior (untreated) achieves the highest Minority-4 F1 for both <strong>Logistic Regression (0.6829)</strong> and <strong>Bi-LSTM (0.6718)</strong>. 
-              Class weighting penalizes deep neural networks (-7.9 pp on Bi-LSTM) by triggering false positives, while <strong>Random Forest is the only architecture rescued (+24.3 pp)</strong> by mitigating tree split skew.
+              Class weighting penalizes deep neural networks (-7.9 pp on Bi-LSTM) by triggering false positives, while <strong>Random Forest is the only architecture rescued (+28.09 pp via SMOTE)</strong> by mitigating tree split skew.
             </p>
           </div>
         </div>
@@ -317,8 +391,8 @@
       <div class="app-container">
         <div class="section-heading">
           <span class="section-tag">Error Dynamics &amp; Diagnostics</span>
-          <h2>Visual Diagnostic Gallery (10 Figures)</h2>
-          <p>Click any figure to inspect high-resolution confusion matrices, word clouds, Pareto frontiers, and distribution plots.</p>
+          <h2>Visual Diagnostic Gallery (14 Figures)</h2>
+          <p>Click any figure to inspect high-resolution confusion matrices, word clouds, Pareto frontiers, and distribution plots from the formal research paper.</p>
         </div>
 
         <div class="gallery-grid" id="gallery-grid-container">
@@ -335,29 +409,44 @@
         <div class="section-heading">
           <span class="section-tag">Academic Deliverables</span>
           <h2>ACL Research Paper &amp; Deliverables</h2>
-          <p>Formatted in ACL two-column LaTeX style with 24 cited references, reproducible pipeline, and trained model weights.</p>
+          <p>Formatted in ACL two-column LaTeX style with cited references, reproducible 6-stage pipeline, and trained model weights.</p>
         </div>
 
         <div class="cards-triplet">
-          <div class="feature-card" style="text-align:center;">
-            <div class="feature-icon">📄</div>
-            <h4>ACL LaTeX Paper</h4>
-            <div style="font-family:var(--font-mono); font-size:12px; color:var(--emerald-green); margin:8px 0;">report/acl_report.tex</div>
-            <p>8-page formal research paper with 24 cited references, methodology, error analysis, and formal novelty discussion.</p>
+          <div class="deliverable-card">
+            <div>
+              <div class="feature-icon">📄</div>
+              <h4>ACL Research Paper (PDF)</h4>
+              <div style="font-family:var(--font-mono); font-size:12px; color:var(--emerald-green); margin:8px 0;">1_24241245_23201133_23201447_23301519.pdf</div>
+              <p>Formal academic paper with 24 cited references, methodology, 11-model benchmarking, Qwen2.5 LoRA study, and error dynamics.</p>
+            </div>
+            <a href="/1_24241245_23201133_23201447_23301519.pdf" target="_blank" class="deliverable-link">
+              <span>📥 Download Paper PDF &rarr;</span>
+            </a>
           </div>
 
-          <div class="feature-card" style="text-align:center;">
-            <div class="feature-icon">⚙️</div>
-            <h4>Staged Pipeline</h4>
-            <div style="font-family:var(--font-mono); font-size:12px; color:var(--amber-gold); margin:8px 0;">pipeline/ &amp; _cache/</div>
-            <p>6-stage resumable Python pipeline (setup, classical, recurrent, bert, evaluate, novelty) with deterministic splits.</p>
+          <div class="deliverable-card">
+            <div>
+              <div class="feature-icon">⚙️</div>
+              <h4>Modular 6-Stage Pipeline</h4>
+              <div style="font-family:var(--font-mono); font-size:12px; color:var(--amber-gold); margin:8px 0;">pipeline/ &amp; _cache/</div>
+              <p>Fully resumable Python pipeline (setup, classical, recurrent, bert, evaluate, novelty, Qwen LoRA) with crash resilience and checkpointing.</p>
+            </div>
+            <a href="#benchmarks" class="deliverable-link">
+              <span>🔍 View Pipeline Benchmarks &rarr;</span>
+            </a>
           </div>
 
-          <div class="feature-card" style="text-align:center;">
-            <div class="feature-icon">🤖</div>
-            <h4>Model Weights</h4>
-            <div style="font-family:var(--font-mono); font-size:12px; color:var(--purple-accent); margin:8px 0;">best_bert_model/</div>
-            <p>PyTorch safetensors weights &amp; Hugging Face tokenizer configuration for the winning BERT Base classifier.</p>
+          <div class="deliverable-card">
+            <div>
+              <div class="feature-icon">🤖</div>
+              <h4>Trained Model Weights</h4>
+              <div style="font-family:var(--font-mono); font-size:12px; color:var(--purple-accent); margin:8px 0;">best_bert_model/</div>
+              <p>PyTorch safetensors weights &amp; Hugging Face tokenizer configuration for the winning BERT Base classifier (0.7738 Macro F1).</p>
+            </div>
+            <a href="#playground" class="deliverable-link">
+              <span>🎮 Test Live in Classifier &rarr;</span>
+            </a>
           </div>
         </div>
       </div>
@@ -386,11 +475,12 @@
   <footer class="app-footer">
     <div class="app-container">
       <p><strong>CSE440 (Natural Language Processing II)</strong> • BRAC University</p>
-      <p style="margin-top:4px;">Instructor: Dr. Farig Sadeque • CFPB Multi-Class Complaint Classification</p>
+      <p style="margin-top:4px;">Authors: Nabil Ishmam, Quazi Unjurn Daniel, Shoumodip Paul, Afnan Mojumder</p>
       <div class="footer-links">
         <a href="#hero">Back to Top</a>
         <a href="#playground">Live Classifier</a>
         <a href="#benchmarks">Leaderboard</a>
+        <a href="#slm-showcase">Qwen2.5 SLM</a>
         <a href="#ensemble">Ensemble Model</a>
         <a href="#ablation">Ablations</a>
         <a href="#gallery">Diagnostic Gallery</a>

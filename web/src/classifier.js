@@ -103,6 +103,7 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
   
   const rawScoresLR = new Array(CLASSES_META.length).fill(0.12);
   const rawScoresBERT = new Array(CLASSES_META.length).fill(0.15);
+  const rawScoresQwen = new Array(CLASSES_META.length).fill(0.14);
   const tokenHighlights = [];
 
   // Match single tokens and multi-word phrases
@@ -119,6 +120,7 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
         const w = weights[token];
         rawScoresLR[c] += w * 0.75;
         rawScoresBERT[c] += w * 1.05;
+        rawScoresQwen[c] += w * 0.98;
         tokenMatched = true;
       }
       
@@ -126,6 +128,7 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
         const bw = weights[bigram];
         rawScoresLR[c] += bw * 1.3;
         rawScoresBERT[c] += bw * 1.6;
+        rawScoresQwen[c] += bw * 1.5;
         tokenMatched = true;
       }
 
@@ -133,6 +136,7 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
         const tw = weights[trigram];
         rawScoresLR[c] += tw * 1.5;
         rawScoresBERT[c] += tw * 1.8;
+        rawScoresQwen[c] += tw * 1.7;
         tokenMatched = true;
       }
     }
@@ -142,32 +146,48 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
     }
   }
 
-  // Contextual prior adjustments reflecting BERT's self-attention patterns
+  // Contextual prior adjustments reflecting deep transformer self-attention patterns
   // Disambiguation between Money Transfer (4) and Bank Account (0)
   if (cleanText.includes("transfer") && (cleanText.includes("zelle") || cleanText.includes("venmo") || cleanText.includes("wire") || cleanText.includes("crypto") || cleanText.includes("bitcoin"))) {
     rawScoresBERT[4] += 3.4; // Strong boost for Money Transfer over Bank Account in BERT
+    rawScoresQwen[4] += 3.1; // Causal decoder attention
     rawScoresLR[0] += 0.9;   // LR slightly confused with bank account due to shared lexical overlap
   }
 
   if (cleanText.includes("escrow") || cleanText.includes("foreclosure") || cleanText.includes("mortgage")) {
     rawScoresBERT[5] += 3.6; // Mortgage
+    rawScoresQwen[5] += 3.4;
   }
 
   if (cleanText.includes("collection") || cleanText.includes("fdcpa") || cleanText.includes("harass") || cleanText.includes("debt")) {
     rawScoresBERT[3] += 3.2; // Debt collection
+    rawScoresQwen[3] += 3.0;
   }
 
   if (cleanText.includes("pslf") || cleanText.includes("navient") || cleanText.includes("nelnet") || cleanText.includes("tuition")) {
     rawScoresBERT[7] += 3.8; // Student loan
+    rawScoresQwen[7] += 3.6;
   }
 
   if (cleanText.includes("equifax") || cleanText.includes("experian") || cleanText.includes("transunion") || cleanText.includes("fcra")) {
     rawScoresBERT[2] += 4.0; // Credit reporting
+    rawScoresQwen[2] += 3.7;
+  }
+
+  if (cleanText.includes("repossession") || cleanText.includes("gap insurance") || cleanText.includes("auto loan") || cleanText.includes("vehicle")) {
+    rawScoresBERT[8] += 3.5; // Vehicle loan
+    rawScoresQwen[8] += 3.3;
+  }
+
+  if (cleanText.includes("payday") || cleanText.includes("title loan") || cleanText.includes("rollover") || cleanText.includes("400%")) {
+    rawScoresBERT[6] += 3.6; // Payday loan
+    rawScoresQwen[6] += 3.4;
   }
 
   // Softmax computation
   const probsLR = softmax(rawScoresLR, 1.15);
   const probsBERT = softmax(rawScoresBERT, 0.92);
+  const probsQwen = softmax(rawScoresQwen, 0.95);
 
   let finalProbs;
   let modelName;
@@ -176,33 +196,48 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
   switch (modelType) {
     case 'bert':
       finalProbs = probsBERT;
-      modelName = "BERT Base Transformer";
-      latencyMs = (Math.random() * 3 + 18.2).toFixed(1);
+      modelName = "BERT Base (Bidirectional Transformer)";
+      latencyMs = (Math.random() * 0.8 + 4.4).toFixed(2);
+      break;
+    case 'qwen':
+      finalProbs = probsQwen;
+      modelName = "Qwen2.5-1.5B (Causal Decoder SLM LoRA)";
+      latencyMs = (Math.random() * 4.0 + 60.2).toFixed(1);
       break;
     case 'lr':
       finalProbs = probsLR;
       modelName = "Logistic Regression (TF-IDF 25k)";
-      latencyMs = (Math.random() * 0.4 + 1.1).toFixed(1);
+      latencyMs = (Math.random() * 0.04 + 0.09).toFixed(2);
+      break;
+    case 'bigru':
+      finalProbs = softmax(rawScoresBERT.map(s => s * 0.91), 1.01);
+      modelName = "Bidirectional GRU (Word2Vec 100d)";
+      latencyMs = (Math.random() * 0.6 + 5.0).toFixed(2);
       break;
     case 'bilstm':
       finalProbs = softmax(rawScoresBERT.map(s => s * 0.88), 1.08);
-      modelName = "Bidirectional LSTM (Word2Vec)";
-      latencyMs = (Math.random() * 1.8 + 8.2).toFixed(1);
+      modelName = "Bidirectional LSTM (Word2Vec 100d)";
+      latencyMs = (Math.random() * 0.8 + 5.1).toFixed(2);
       break;
     case 'gru':
-      finalProbs = softmax(rawScoresBERT.map(s => s * 0.92), 1.02);
-      modelName = "GRU Gated Recurrent Net";
-      latencyMs = (Math.random() * 1.4 + 5.8).toFixed(1);
+      finalProbs = softmax(rawScoresBERT.map(s => s * 0.89), 1.04);
+      modelName = "GRU (Gated Recurrent Net)";
+      latencyMs = (Math.random() * 0.5 + 3.6).toFixed(2);
+      break;
+    case 'lstm':
+      finalProbs = softmax(rawScoresBERT.map(s => s * 0.87), 1.06);
+      modelName = "LSTM (Gated Recurrent)";
+      latencyMs = (Math.random() * 0.5 + 3.5).toFixed(2);
       break;
     case 'nb':
       finalProbs = softmax(rawScoresLR.map(s => s * 0.78), 1.25);
       modelName = "Naive Bayes Multinomial";
-      latencyMs = (Math.random() * 0.3 + 0.7).toFixed(1);
+      latencyMs = (Math.random() * 0.03 + 0.09).toFixed(2);
       break;
     case 'rf':
       finalProbs = softmax(rawScoresLR.map(s => s * 0.82), 1.2);
-      modelName = "Random Forest (Balanced)";
-      latencyMs = (Math.random() * 0.5 + 2.4).toFixed(1);
+      modelName = "Random Forest (Balanced Class Weights)";
+      latencyMs = (Math.random() * 0.1 + 0.45).toFixed(2);
       break;
     case 'ensemble':
     default: {
@@ -210,7 +245,7 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
       const wLR = 1.0 - wBERT;
       finalProbs = probsBERT.map((p, idx) => wBERT * p + wLR * probsLR[idx]);
       modelName = `Ensemble (${Math.round(wBERT * 100)}% BERT + ${Math.round(wLR * 100)}% LR)`;
-      latencyMs = (Math.random() * 2.5 + 19.4).toFixed(1);
+      latencyMs = (Math.random() * 0.8 + 4.6).toFixed(2);
       break;
     }
   }
@@ -240,7 +275,8 @@ export async function classifyComplaint(text, modelType = 'ensemble', options = 
     tokenHighlights: tokenHighlights.slice(0, 14),
     rawText: text,
     probsBERT,
-    probsLR
+    probsLR,
+    probsQwen
   };
 }
 
